@@ -1,0 +1,32 @@
+{
+  "animation": {
+    "name": "애니메이션",
+    "prefix": "cute cartoon animation style, colorful, vibrant, rounded characters, clean lines, digital illustration,",
+    "suffix": ", high quality, detailed, 4k"
+  },
+  "realistic": {
+    "name": "실사",
+    "prefix": "photorealistic, professional photography, high detail, natural lighting,",
+    "suffix": ", 8k, ultra detailed, sharp focus"
+  },
+  "retro_manhwa": {
+    "name": "레트로 만화",
+    "prefix": "retro Korean manhwa style, vintage comic book, halftone dots, bold outlines,",
+    "suffix": ", nostalgic, colorful, hand-drawn feel"
+  },
+  "watercolor": {
+    "name": "수채화",
+    "prefix": "watercolor painting style, soft colors, artistic, flowing brushstrokes,",
+    "suffix": ", delicate, beautiful, artistic illustration"
+  },
+  "documentary": {
+    "name": "다큐멘터리",
+    "prefix": "documentary style infographic, clean design, professional,",
+    "suffix": ", informative, modern design, clear layout"
+  },
+  "cute_3d": {
+    "name": "귀여운 3D",
+    "prefix": "cute 3D rendered character, Pixar style, soft lighting, adorable,",
+    "suffix": ", high quality 3D render, smooth, appealing"
+  }
+}

@@ -1,0 +1,210 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>딸깍 - 유튜브 영상 자동 제작</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+
+        <!-- 헤더 -->
+        <header class="header">
+            <h1>🎬 딸깍</h1>
+            <p>뉴스 기사 → 유튜브 영상, 클릭 네 번이면 끝</p>
+        </header>
+
+        <!-- 입력 패널 -->
+        <section class="panel input-panel" id="inputPanel">
+            <h2>1. 뉴스 기사 입력</h2>
+            <textarea id="articleInput" rows="10"
+                placeholder="여기에 뉴스 기사를 붙여넣기 하세요..."></textarea>
+
+            <div class="options-grid">
+                <!-- 카테고리 -->
+                <div class="option-group">
+                    <label>카테고리</label>
+                    <select id="categorySelect">
+                        <option value="경제" selected>경제 (국뽕)</option>
+                        <option value="심리학">심리학</option>
+                        <option value="우주">우주</option>
+                        <option value="동물">동물</option>
+                        <option value="기술">기술</option>
+                        <option value="역사">역사</option>
+                        <option value="사연">사연</option>
+                        <option value="기타">기타</option>
+                    </select>
+                </div>
+
+                <!-- 이미지 스타일 -->
+                <div class="option-group">
+                    <label>이미지 스타일</label>
+                    <select id="styleSelect">
+                        <option value="animation" selected>애니메이션</option>
+                        <option value="realistic">실사</option>
+                        <option value="retro_manhwa">레트로 만화</option>
+                        <option value="watercolor">수채화</option>
+                        <option value="documentary">다큐멘터리</option>
+                        <option value="cute_3d">귀여운 3D</option>
+                    </select>
+                </div>
+
+                <!-- 이미지 AI 모델 -->
+                <div class="option-group">
+                    <label>이미지 AI 모델</label>
+                    <select id="modelSelect">
+                        {% for key, m in image_models.items() %}
+                        <option value="{{ key }}" {{ 'selected' if key == 'flux-schnell' else '' }}>
+                            {{ m.name }} — ${{ "%.3f"|format(m.cost) }}/장
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- TTS 음성 -->
+                <div class="option-group">
+                    <label>TTS 음성</label>
+                    <select id="voiceSelect">
+                        {% for code, name in tts_voices.items() %}
+                        <option value="{{ code }}" {{ 'selected' if loop.first else '' }}>
+                            {{ name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- 자막 -->
+                <div class="option-group">
+                    <label>자막 burn-in</label>
+                    <select id="burnSubsSelect">
+                        <option value="true" selected>예 (영상에 자막 합성)</option>
+                        <option value="false">아니오 (SRT만 생성)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 예상 비용 -->
+            <div class="cost-estimate" id="costEstimate">
+                예상 비용: ~$0.09 (30장 기준)
+            </div>
+
+            <button class="btn-primary" id="startBtn" onclick="startPipeline()">
+                🚀 딸깍! 영상 만들기
+            </button>
+        </section>
+
+        <!-- 진행 상황 -->
+        <section class="panel progress-panel" id="progressPanel" style="display:none;">
+            <h2>⏳ 제작 진행 중...</h2>
+
+            <div class="steps">
+                <div class="step" id="step-script">
+                    <div class="step-icon">📝</div>
+                    <div class="step-info">
+                        <div class="step-name">대본 생성</div>
+                        <div class="step-status" id="status-script">대기 중</div>
+                    </div>
+                    <div class="step-indicator" id="indicator-script"></div>
+                </div>
+
+                <div class="step" id="step-images">
+                    <div class="step-icon">🎨</div>
+                    <div class="step-info">
+                        <div class="step-name">이미지 생성</div>
+                        <div class="step-status" id="status-images">대기 중</div>
+                        <div class="step-progress-bar" id="bar-images" style="display:none;">
+                            <div class="bar-fill" id="fill-images"></div>
+                        </div>
+                    </div>
+                    <div class="step-indicator" id="indicator-images"></div>
+                </div>
+
+                <div class="step" id="step-tts">
+                    <div class="step-icon">🔊</div>
+                    <div class="step-info">
+                        <div class="step-name">음성 생성</div>
+                        <div class="step-status" id="status-tts">대기 중</div>
+                        <div class="step-progress-bar" id="bar-tts" style="display:none;">
+                            <div class="bar-fill" id="fill-tts"></div>
+                        </div>
+                    </div>
+                    <div class="step-indicator" id="indicator-tts"></div>
+                </div>
+
+                <div class="step" id="step-compose">
+                    <div class="step-icon">🎬</div>
+                    <div class="step-info">
+                        <div class="step-name">영상 합성</div>
+                        <div class="step-status" id="status-compose">대기 중</div>
+                    </div>
+                    <div class="step-indicator" id="indicator-compose"></div>
+                </div>
+
+                <div class="step" id="step-metadata">
+                    <div class="step-icon">📋</div>
+                    <div class="step-info">
+                        <div class="step-name">메타데이터 · 썸네일</div>
+                        <div class="step-status" id="status-metadata">대기 중</div>
+                    </div>
+                    <div class="step-indicator" id="indicator-metadata"></div>
+                </div>
+            </div>
+
+            <!-- 로그 -->
+            <div class="log-box" id="logBox"></div>
+        </section>
+
+        <!-- 결과 -->
+        <section class="panel result-panel" id="resultPanel" style="display:none;">
+            <h2>🎉 완료!</h2>
+
+            <div class="result-grid">
+                <!-- 영상 -->
+                <div class="result-video">
+                    <video id="resultVideo" controls></video>
+                </div>
+
+                <!-- 썸네일 -->
+                <div class="result-thumbnail">
+                    <h3>썸네일</h3>
+                    <img id="resultThumb" alt="썸네일">
+                </div>
+
+                <!-- 추천 제목 -->
+                <div class="result-titles">
+                    <h3>추천 제목 (클릭하여 복사)</h3>
+                    <ul id="resultTitles"></ul>
+                </div>
+
+                <!-- 해시태그 -->
+                <div class="result-tags">
+                    <h3>해시태그</h3>
+                    <div id="resultHashtags" class="tag-cloud"></div>
+                </div>
+
+                <!-- 설명란 -->
+                <div class="result-desc">
+                    <h3>유튜브 설명란</h3>
+                    <textarea id="resultDesc" rows="5" readonly></textarea>
+                    <button class="btn-copy" onclick="copyText('resultDesc')">복사</button>
+                </div>
+
+                <!-- 다운로드 -->
+                <div class="result-downloads">
+                    <h3>다운로드</h3>
+                    <a id="dlVideo" class="btn-download" download>📹 영상 다운로드</a>
+                    <a id="dlThumb" class="btn-download" download>🖼️ 썸네일 다운로드</a>
+                    <a id="dlSrt" class="btn-download" download>📄 자막(SRT) 다운로드</a>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="resetAll()">🔄 새 영상 만들기</button>
+        </section>
+
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
