@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 딸깍 스튜디오 — 3단 레이아웃 프론트엔드
  */
 
@@ -536,9 +536,12 @@ function generateAudio() {
     const btn = $('btnBatchAudio');
     btn.disabled = true;
 
+    const speedEl = $('ttsSpeed');
+    const speed = speedEl ? speedEl.value : '1.25';
     const params = new URLSearchParams({
         project_id: STATE.projectId,
         voice,
+        speed,
     });
 
     const es = new EventSource(`/api/step3/generate?${params}`);
@@ -968,6 +971,29 @@ async function generateMeta() {
 }
 
 // ═══════════════════════════════════════
+
+async function generateThumbnail() {
+    const btn = $('btnThumb');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 생성 중...';
+    try {
+        const res = await fetch('/api/step6/thumbnail', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({project_id: STATE.projectId}),
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        $('metaThumb').src = data.thumbnail_url + '?t=' + Date.now();
+        $('dlThumb').href = data.thumbnail_url;
+    } catch (e) {
+        alert('썸네일 오류: ' + e.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 썸네일 생성';
+    }
+}
+
 // 프로젝트 불러오기 (Resume)
 // ═══════════════════════════════════════
 
@@ -1054,3 +1080,4 @@ async function resumeProject(projectId) {
 
     alert(`프로젝트 불러옴: ${STATE.scenes.length}씬\n${STATE.title}`);
 }
+
