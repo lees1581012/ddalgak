@@ -1,0 +1,777 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>?멸퉵 ?ㅽ뒠?붿삤</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="app">
+
+        <!-- ?먥븧???곷떒 ???ㅻ퉬寃뚯씠???먥븧??-->
+        <nav class="top-nav">
+            <div class="nav-logo" title="?멸퉵 ?ㅽ뒠?붿삤">
+    <i class="fa-solid fa-clapperboard"></i>
+</div>
+<button class="nav-resume-btn" onclick="loadProjectList()" title="?꾨줈?앺듃 遺덈윭?ㅺ린">
+    <i class="fa-solid fa-folder-open"></i>
+</button>
+
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="script" onclick="switchTab('script')">
+                    <div class="nav-tab-icon"><i class="fa-solid fa-file-lines"></i></div>
+                    <span>?ㅽ넗由?/span>
+                </button>
+                <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                <button class="nav-tab" data-tab="images" onclick="switchTab('images')" disabled>
+                    <div class="nav-tab-icon"><i class="fa-solid fa-image"></i></div>
+                    <span>?대?吏</span>
+                </button>
+                <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                <button class="nav-tab" data-tab="audio" onclick="switchTab('audio')" disabled>
+                    <div class="nav-tab-icon"><i class="fa-solid fa-music"></i></div>
+                    <span>?ㅻ뵒??/span>
+                </button>
+                <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+              <button class="nav-tab" data-tab="video" onclick="switchTab('video')" disabled>
+    <div class="nav-tab-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+    <span>鍮꾨뵒??/span>
+</button>
+<div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+<button class="nav-tab" data-tab="compose" onclick="switchTab('compose')" disabled>
+    <div class="nav-tab-icon"><i class="fa-solid fa-clapperboard"></i></div>
+    <span>?⑹꽦</span>
+</button>
+
+                <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                <button class="nav-tab" data-tab="preview" onclick="switchTab('preview')" disabled>
+                    <div class="nav-tab-icon"><i class="fa-solid fa-eye"></i></div>
+                    <span>?꾨━酉?/span>
+                </button>
+                <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                <button class="nav-tab" data-tab="meta" onclick="switchTab('meta')" disabled>
+                    <div class="nav-tab-icon"><i class="fa-solid fa-image"></i></div>
+                    <span>?몃꽕??/span>
+                </button>
+            </div>
+
+            <div class="nav-right">
+                <span class="project-badge" id="projectBadge"></span>
+            </div>
+        </nav>
+
+        <!-- ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??-->
+        <!-- ??1: ?ㅽ넗由?(?蹂?                      -->
+        <!-- ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??-->
+        <section class="tab-content active" id="tab-script">
+
+            <!-- ?낅젰 紐⑤뱶 -->
+            <div class="script-input-view" id="scriptInputView">
+                <div class="script-layout-single">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>?蹂??ㅽ뒠?붿삤</h2>
+                            <p class="subtitle">?蹂몄쓣 ?낅젰?섍굅???ㅼ썙?쒕줈 JSON ?ㅽ넗由щ낫?쒕? ?앹꽦?섏꽭??/p>
+                        </div>
+
+                        <div class="input-mode-tabs">
+                            <button class="mode-tab active">?蹂??낅젰</button>
+                            <button class="mode-tab" disabled>?ㅼ썙?쒕줈 ?쒖옉</button>
+                        </div>
+
+                        <div class="card-split">
+                            <!-- 醫뚯륫: ?낅젰 -->
+                            <div class="card-left">
+                                <div class="input-header">
+                                    <h3>?蹂??낅젰</h3>
+                                    <div class="input-actions">
+                                        <button class="btn-ghost" onclick="document.getElementById('articleInput').value=''">
+                                            <i class="fa-solid fa-trash"></i> 紐⑤몢 吏?곌린
+                                        </button>
+                                        <span class="shortcut-hint">Ctrl + Enter濡??ㅽ뻾</span>
+                                    </div>
+                                </div>
+                                <textarea id="articleInput" rows="14"
+                                    placeholder="?ㅽ넗由щ낫?쒕줈 蹂?섑븷 ?蹂??쒕굹由ъ삤瑜??낅젰?섏꽭??"></textarea>
+
+                                <div class="gen-options">
+                                    <div class="option-group">
+                                        <label>移댄뀒怨좊━</label>
+                                        <select id="categorySelect">
+                                            <option value="寃쎌젣" selected>寃쎌젣</option>
+                                            <option value="?щ━??>?щ━??/option>
+                                            <option value="?곗＜">?곗＜</option>
+                                            <option value="?숇Ъ">?숇Ъ</option>
+                                            <option value="湲곗닠">湲곗닠</option>
+                                            <option value="??궗">??궗</option>
+                                            <option value="?ъ뿰">?ъ뿰</option>
+                                            <option value="湲고?">湲고?</option>
+                                        </select>
+                                    </div>
+                                    <div class="option-group">
+                                        <label>?몄뼱</label>
+                                        <select>
+                                            <option selected>?쒓뎅??/option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <button class="btn-primary btn-full" id="btnGenScript" onclick="generateScript()">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> ?ㅽ넗由щ낫???앹꽦
+                                </button>
+                            </div>
+
+                            <!-- ?곗륫: ?ㅽ듃由щ컢 濡쒓렇 + JSON 寃곌낵 -->
+                            <div class="card-right">
+                                <div class="log-section">
+                                    <h3>?ㅽ듃由щ컢 濡쒓렇</h3>
+                                    <div class="log-box" id="scriptLogBox">
+                                        <span class="log-dim">?앹꽦 踰꾪듉???꾨Ⅴ硫??ш린??吏꾪뻾 ?곹솴???쒖떆?⑸땲??</span>
+                                    </div>
+                                </div>
+                                <div class="json-section">
+                                    <div class="json-header">
+                                        <h3>JSON 寃곌낵</h3>
+                                        <div>
+                                            <button class="btn-ghost btn-sm" onclick="copyJSON()">蹂듭궗</button>
+                                            <button class="btn-accent btn-sm" id="btnToProject" onclick="loadScriptEditor()" style="display:none">?꾨줈?앺듃濡??꾩넚</button>
+                                        </div>
+                                    </div>
+                                    <pre class="json-preview" id="jsonPreview">{}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ?몄쭛 紐⑤뱶 (?앹꽦 ?? -->
+            <div class="script-edit-view" id="scriptEditView" style="display:none">
+                <div class="three-col">
+                    <!-- 醫? ?λ㈃ 由ъ뒪??-->
+                    <div class="sidebar-left">
+                        <div class="sidebar-header">
+                            <h3>?λ㈃ <span class="count-badge" id="editSceneCount">0</span>??/h3>
+                        </div>
+                        <div class="scene-sidebar-list" id="sceneSidebarList"></div>
+                        <button class="btn-ghost btn-full" onclick="addScene()">
+                            <i class="fa-solid fa-plus"></i> ?λ㈃ 異붽?
+                        </button>
+                    </div>
+
+                    <!-- 以묒븰: ?좏깮???λ㈃ ?몄쭛 -->
+                    <div class="main-center">
+                        <div class="center-header">
+                            <span class="scene-badge" id="editSceneBadge">M1</span>
+                            <span class="scene-title-display" id="editSceneTitle">?λ㈃???좏깮?섏꽭??/span>
+                        </div>
+                        <div class="scene-editor" id="sceneEditor">
+                            <div class="editor-group">
+                                <label>?섎젅?댁뀡</label>
+                                <textarea id="editNarration" rows="4" placeholder="?섎젅?댁뀡 ?띿뒪??></textarea>
+                            </div>
+                            <div class="editor-group">
+                                <label>?대?吏 ?꾨＼?꾪듃</label>
+                                <textarea id="editImagePrompt" rows="4" placeholder="?대?吏 ?앹꽦 ?꾨＼?꾪듃"></textarea>
+                            </div>
+                            <div class="editor-actions">
+                                <button class="btn-ghost" onclick="deleteCurrentScene()">
+                                    <i class="fa-solid fa-trash"></i> ??젣
+                                </button>
+                                <button class="btn-primary" onclick="saveCurrentScene()">
+                                    <i class="fa-solid fa-check"></i> ???
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ?? 而⑦듃濡?-->
+                    <div class="sidebar-right">
+                        <div class="control-panel">
+                            <h3>而⑦듃濡?/h3>
+                            <div class="control-group">
+                                <label>?쒕ぉ</label>
+                                <input type="text" id="editTitle" class="input-full">
+                            </div>
+                            <button class="btn-primary btn-full" onclick="saveScriptAndNext()">
+                                <i class="fa-solid fa-arrow-right"></i> ??????대?吏 ??쑝濡?
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??-->
+        <!-- ??2: ?대?吏                             -->
+        <!-- ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??-->
+        <section class="tab-content" id="tab-images">
+            <div class="three-col">
+                <!-- 醫? ?λ㈃ 由ъ뒪??-->
+                <div class="sidebar-left">
+                    <div class="sidebar-header">
+                        <h3>?λ㈃ <span class="count-badge" id="imgSceneCount">0</span>??/h3>
+                    </div>
+                    <div class="sidebar-filter">
+                        <input type="text" placeholder="?λ㈃ 寃??.." class="input-sm">
+                    </div>
+                    <div class="scene-sidebar-list" id="imgSidebarList"></div>
+                </div>
+
+                <!-- 以묒븰: ?대?吏 ?꾨━酉?-->
+                <div class="main-center">
+                    <div class="center-header">
+                        <span class="scene-badge" id="imgSceneBadge">M1</span>
+                        <span class="scene-title-display" id="imgSceneTitle">-</span>
+                        <button class="btn-danger btn-sm" onclick="deleteCurrentImage()" style="margin-left:auto">??젣</button>
+                    </div>
+                    <div class="image-preview-area" id="imagePreviewArea">
+                        <div class="empty-state">
+                            <i class="fa-regular fa-image" style="font-size:3rem;opacity:0.3"></i>
+                            <p>誘몃━蹂닿린 ?대?吏媛 ?놁뒿?덈떎</p>
+                        </div>
+                    </div>
+
+                    <div class="image-select-section">
+                        <h4>鍮꾨뵒?ㅼ깮???꾨떖 ?대?吏 ?좏깮 <span class="count-badge" id="imgSelectedCount">0</span>??/h4>
+                        <div class="selected-images-row" id="selectedImagesRow">
+                            <p class="empty-hint">硫붿씤 ?대?吏媛 ?놁뒿?덈떎</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ?? 而⑦듃濡?-->
+                <div class="sidebar-right">
+                    <div class="control-panel">
+                        <h3>而⑦듃濡?<span class="scene-badge-sm" id="imgControlBadge">M1</span></h3>
+
+                        <div class="control-group">
+                            <label>?대?吏 紐⑤뜽</label>
+                            <select id="modelSelect">
+                                {% for key, m in image_models.items() %}
+                                <option value="{{ key }}" {{ 'selected' if key == 'flux-schnell' else '' }}>
+                                    {{ m.name }} ??${{ "%.3f"|format(m.cost) }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <button class="btn-orange btn-full" id="btnBatchImages" onclick="generateImages()">
+                            <i class="fa-solid fa-images"></i> 誘몄깮???쇨큵 (<span id="imgUngenCount">0</span>)
+                        </button>
+                        <button class="btn-ghost btn-full" onclick="deleteAllImages()">
+                            <i class="fa-solid fa-trash"></i> ?대?吏 ?쇨큵 ??젣
+                        </button>
+
+                        <div class="progress-section" id="imgProgressSection" style="display:none">
+                            <div class="progress-bar-wrap">
+                                <div class="progress-bar-fill" id="imgProgressFill"></div>
+                            </div>
+                            <span class="progress-label" id="imgProgressText">0/0</span>
+                        </div>
+
+                        <hr class="divider">
+
+                        <button class="btn-green btn-full" onclick="selectAllImages()">
+                            <i class="fa-solid fa-check"></i> 誘몄꽑???쇨큵 ?좏깮
+                        </button>
+                        <button class="btn-ghost btn-full">
+                            <i class="fa-solid fa-download"></i> ?좏깮???대?吏 ?ㅼ슫濡쒕뱶 <span class="count-badge-sm">0</span>
+                        </button>
+
+                        <hr class="divider">
+
+                        <div class="control-group">
+                            <div class="prompt-header">
+                                <label>?앹꽦 ?꾨＼?꾪듃</label>
+                                <button class="btn-ghost btn-sm" id="btnEditPrompt" onclick="togglePromptEdit()">?꾨＼?꾪듃 蹂닿린/?섏젙</button>
+                            </div>
+                            <textarea id="imgPromptEdit" rows="3" class="prompt-textarea" style="display:none"></textarea>
+                            <button class="btn-primary btn-full" onclick="regenerateCurrentImage()" style="margin-top:8px">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> ?대?吏 ?앹꽦
+                            </button>
+                        </div>
+
+                        <div class="control-group">
+                            <label>?대?吏 ?ㅽ???/label>
+                            <select id="styleSelect">
+                                <option value="animation" selected>?좊땲硫붿씠??/option>
+                                <option value="realistic">?ㅼ궗</option>
+                                <option value="retro_manhwa">?덊듃濡?留뚰솕</option>
+                                <option value="watercolor">?섏콈??/option>
+                                <option value="documentary">?ㅽ걧硫섑꽣由?/option>
+                                <option value="cute_3d">洹?ъ슫 3D</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??-->
+        <!-- ??3: ?ㅻ뵒??                            -->
+        <!-- ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??-->
+        <section class="tab-content" id="tab-audio">
+            <div class="three-col">
+                <!-- 醫? ?λ㈃ 由ъ뒪??-->
+                <div class="sidebar-left">
+                    <div class="sidebar-header">
+                        <h3>?λ㈃ <span class="count-badge" id="audioSceneCount">0</span>??/h3>
+                    </div>
+                    <div class="scene-sidebar-list" id="audioSidebarList"></div>
+                </div>
+
+                <!-- 以묒븰 -->
+                <div class="main-center">
+                    <div class="center-header">
+                        <span class="scene-badge" id="audioSceneBadge">M1</span>
+                        <span class="scene-title-display" id="audioSceneTitle">-</span>
+                    </div>
+
+                    <div class="audio-center-content">
+                        <div class="audio-info-bar">
+                            <span>珥?<span id="audioTotalCount">0</span>媛?/span>
+                            <span>?꾨즺 <span id="audioDoneCount">0</span></span>
+                            <span>吏꾪뻾 <span id="audioProgressCount">0</span></span>
+                        </div>
+
+                        <div class="audio-settings-card">
+                            <h4>?뚯꽦 ?ㅼ젙</h4>
+                            <p class="subtitle">紐⑤뜽怨??뚯꽦??癒쇱? 怨⑤씪 二쇱꽭??</p>
+
+                            <div class="audio-options-row">
+                                <div class="option-group">
+                                    <label>紐⑤뜽</label>
+                                    <select id="ttsModelSelect">
+                                        <option selected>Edge TTS (臾대즺)</option>
+                                    </select>
+                                </div>
+                                <div class="option-group">
+                                    <label>?뚯꽦</label>
+                                    <select id="voiceSelect">
+                                        {% for code, name in tts_voices.items() %}
+                                        <option value="{{ code }}" {{ 'selected' if loop.first else '' }}>
+                                            {{ name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="option-group" style="align-self:flex-end">
+                                    <button class="btn-ghost btn-sm"><i class="fa-solid fa-headphones"></i> 紐⑤뱺 ?뚯꽦 誘몃━?ｊ린</button>
+                                </div>
+                            </div>
+
+                            <p class="subtitle" style="margin-top:16px">?좏깮???λ㈃???곸슜?⑸땲??</p>
+                        </div>
+
+                        <div class="audio-action-cards">
+                            <div class="action-card">
+                                <h4>?좏깮 ?λ㈃</h4>
+                                <span class="subtitle">?⑥씪 ?앹꽦</span>
+                                <button class="btn-orange btn-full" onclick="generateSingleAudio()">
+                                    <i class="fa-solid fa-play"></i> ?ㅻ뵒???앹꽦
+                                </button>
+                                <p class="small-hint">?꾩옱 ?좏깮???λ㈃留??앹꽦?⑸땲??</p>
+                                <span class="small-hint">?좏깮 ?λ㈃ <strong id="audioSelectedScene">M1</strong></span>
+                            </div>
+
+                            <div class="action-card">
+                                <h4>誘몄깮???쇨큵</h4>
+                                <span class="subtitle">?⑥? <span id="audioUngenCount">0</span>媛?/span>
+                                <button class="btn-purple btn-full" id="btnBatchAudio" onclick="generateAudio()">
+                                    <i class="fa-solid fa-layer-group"></i> 誘몄깮??<span id="audioUngenCount2">0</span>媛??쇨큵
+                                </button>
+                                <p class="small-hint">諛깃렇?쇱슫?쒖뿉???앹꽦?⑸땲?? ?섏씠吏瑜??섍???怨꾩냽 ?⑸땲??</p>
+                            </div>
+                        </div>
+
+                        <button class="btn-danger btn-full" style="margin-top:12px" onclick="deleteAllAudio()">
+                            <i class="fa-solid fa-trash"></i> ?ㅻ뵒???쇨큵 ??젣
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ?? ?꾩옱 ?λ㈃ ?ㅻ뵒??-->
+                <div class="sidebar-right">
+                    <div class="control-panel">
+                        <h3>?ㅻ뵒??誘몃━蹂닿린</h3>
+                        <audio id="audioPreviewPlayer" controls style="width:100%;margin-bottom:12px"></audio>
+                        <div class="control-group">
+                            <label>?섎젅?댁뀡</label>
+                            <p class="narration-preview" id="audioNarrationPreview">-</p>
+                        </div>
+                        <div class="control-group">
+                            <label>湲몄씠</label>
+                            <span id="audioDurationPreview">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??-->
+<!-- ??4: AI 鍮꾨뵒???앹꽦                    -->
+<!-- ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??-->
+<section class="tab-content" id="tab-video">
+    <div class="three-col">
+        <div class="sidebar-left">
+            <div class="sidebar-header">
+                <h3>?λ㈃ <span class="count-badge" id="videoSceneCount">0</span>??/h3>
+            </div>
+            <div class="scene-sidebar-list" id="videoSidebarList"></div>
+        </div>
+
+        <div class="main-center">
+            <div class="center-header">
+                <span class="scene-badge" id="videoSceneBadge">M1</span>
+                <span class="scene-title-display" id="videoSceneTitle">-</span>
+                <span class="video-status-badge" id="videoStatusBadge">?湲?/span>
+            </div>
+
+            <!-- ?먮낯 ?대?吏 -->
+            <div class="video-source-row">
+                <div class="video-source-img">
+                    <img id="videoSourceImg" src="" alt="?먮낯 ?대?吏">
+                    <span class="label">?먮낯 ?대?吏</span>
+                </div>
+                <div class="video-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                <div class="video-result-area" id="videoResultArea">
+                    <div class="empty-state">
+                        <i class="fa-solid fa-film" style="font-size:2rem;opacity:0.3"></i>
+                        <p>?곸긽???앹꽦?섎㈃ ?ш린???쒖떆?⑸땲??/p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ITV ?꾨＼?꾪듃 -->
+            <div class="video-prompt-area">
+                <label>ITV ?꾨＼?꾪듃 (?대?吏?믪쁺??蹂??吏??</label>
+                <textarea id="videoPromptText" rows="3" placeholder="移대찓?쇨? 泥쒖쿇??以뚯씤?섎ŉ ?몃Ъ??怨좉컻瑜??뚮┛??.."></textarea>
+                <div class="prompt-btn-row">
+                    <button class="btn-ghost btn-sm" onclick="autoGenerateItvPrompt()">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> AI ?먮룞?앹꽦
+                    </button>
+                    <button class="btn-ghost btn-sm" onclick="copyItvPrompt()">
+                        <i class="fa-solid fa-copy"></i> 蹂듭궗
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-right">
+            <div class="control-panel">
+                <h3>鍮꾨뵒???앹꽦</h3>
+
+                <!-- 紐⑤뱶 ?좏깮 -->
+                <div class="control-group">
+                    <label>?앹꽦 紐⑤뱶</label>
+                    <select id="videoModeSelect">
+                        <option value="comfyui">濡쒖뺄 LTX2 (ComfyUI)</option>
+                        <option value="replicate">Replicate API (minimax)</option>
+                        <option value="google">Google Veo</option>
+                        <option value="manual">?섎룞 ?낅줈??/option>
+                    </select>
+                </div>
+
+                <!-- 踰붿쐞 ?ㅼ젙 -->
+                <div class="control-group">
+                    <label>?앹꽦 踰붿쐞</label>
+                    <div class="range-row">
+                        <input type="number" id="videoRangeStart" value="1" min="1" class="input-sm">
+                        <span>~</span>
+                        <input type="number" id="videoRangeEnd" value="5" min="1" class="input-sm">
+                        <span>??/span>
+                    </div>
+                </div>
+
+                <!-- ?꾨젅????-->
+                <div class="control-group">
+                    <label>?꾨젅????<span id="videoFrameInfo">(121 = 4.8珥?</span></label>
+                    <input type="range" min="49" max="201" value="121" step="8" id="videoFrameCount"
+                           oninput="$('videoFrameInfo').textContent='('+ this.value +' = '+(this.value/25).toFixed(1)+'珥?'">
+                </div>
+
+                <button class="btn-primary btn-full" id="btnVideoGen" onclick="generateVideos()">
+                    <i class="fa-solid fa-play"></i> ?좏깮 踰붿쐞 ?앹꽦 ?쒖옉
+                </button>
+
+                <button class="btn-purple btn-full" style="margin-top:8px" id="btnVideoSingle" onclick="generateSingleVideo()">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> ?꾩옱 ?щ쭔 ?앹꽦
+                </button>
+
+                <div class="video-gen-status" id="videoGenStatus" style="display:none">
+                    <div class="spinner"></div>
+                    <span id="videoGenStatusText">?앹꽦 以?..</span>
+                </div>
+
+                <hr class="divider">
+
+                <!-- ?섎룞 ?낅줈??-->
+                <div class="control-group">
+                    <label>?섎룞 ?곸긽 ?낅줈??/label>
+                    <input type="file" id="videoUploadFile" accept="video/*">
+                    <button class="btn-ghost btn-full" onclick="uploadSceneVideo()" style="margin-top:6px">
+                        <i class="fa-solid fa-upload"></i> ?꾩옱 ?ъ뿉 ?낅줈??
+                    </button>
+                </div>
+
+                <hr class="divider">
+
+                <!-- ?꾩껜 ?꾨＼?꾪듃 -->
+                <button class="btn-ghost btn-full" onclick="generateAllItvPrompts()">
+                    <i class="fa-solid fa-list"></i> ?꾩껜 ITV ?꾨＼?꾪듃 ?앹꽦
+                </button>
+                <button class="btn-ghost btn-full" onclick="exportItvPrompts()" style="margin-top:6px">
+                    <i class="fa-solid fa-download"></i> ?꾨＼?꾪듃 ?대낫?닿린 (JSON)
+                </button>
+
+                <hr class="divider">
+
+                <!-- 吏꾪뻾 ?곹솴 -->
+                <div class="video-progress-summary">
+                    <span>?꾨즺: <strong id="videoDoneCount">0</strong></span>
+                    <span>?湲? <strong id="videoPendingCount">0</strong></span>
+                    <span>?ㅽ뙣: <strong id="videoFailCount">0</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+        <!-- ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??-->
+        <!-- ??4: 鍮꾨뵒??(?⑹꽦)                      -->
+        <!-- ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??-->
+        <section class="tab-content" id="tab-compose">
+            <div class="three-col">
+                <div class="sidebar-left">
+                    <div class="sidebar-header">
+                        <h3>?λ㈃ <span class="count-badge" id="composeSceneCount">0</span>??/h3>
+                    </div>
+                    <div class="scene-sidebar-list" id="composeSidebarList"></div>
+                </div>
+
+                <div class="main-center">
+                    <div class="center-header">
+                        <span class="scene-badge" id="composeSceneBadge">M1</span>
+                        <span class="scene-title-display" id="composeSceneTitle">-</span>
+                    </div>
+                    <div class="compose-preview" id="composePreview">
+                        <div class="empty-state">
+                            <i class="fa-solid fa-film" style="font-size:3rem;opacity:0.3"></i>
+                            <p>?⑹꽦 踰꾪듉???꾨Ⅴ硫??곸긽???앹꽦?⑸땲??/p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-right">
+                    <div class="control-panel">
+                        <h3>而⑦듃濡?/h3>
+                        <div class="control-group">
+                            <label>?먮쭑 burn-in</label>
+                            <select id="burnSubsSelect">
+                                <option value="true" selected>??(?곸긽???먮쭑 ?⑹꽦)</option>
+                                <option value="false">?꾨땲??(SRT留??앹꽦)</option>
+                            </select>
+                        </div>
+
+                        <button class="btn-primary btn-full" id="btnCompose" onclick="composeVideo()">
+                            <i class="fa-solid fa-clapperboard"></i> ?곸긽 ?⑹꽦 ?쒖옉
+                        </button>
+                        <div class="compose-status" id="composeStatus" style="display:none">
+                            <div class="spinner"></div>
+                            <span>?⑹꽦 以?.. (1~5遺?</span>
+                        </div>
+
+                        <hr class="divider">
+
+                        <div id="composeDownloads" style="display:none">
+                            <a id="dlVideoCompose" class="btn-download btn-full" download>
+                                <i class="fa-solid fa-video"></i> ?곸긽 ?ㅼ슫濡쒕뱶
+                            </a>
+                            <a id="dlSrtCompose" class="btn-download btn-full" download style="margin-top:8px">
+                                <i class="fa-solid fa-closed-captioning"></i> SRT ?ㅼ슫濡쒕뱶
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??-->
+        <!-- ??5: ?꾨━酉?                            -->
+        <!-- ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??-->
+        <section class="tab-content" id="tab-preview">
+            <div class="preview-layout">
+                <div class="preview-main">
+                    <div class="preview-toolbar">
+                        <button class="btn-ghost btn-sm"><i class="fa-solid fa-volume-up"></i></button>
+                        <div class="preview-format-tabs">
+                            <button class="format-tab active">濡깊뤌</button>
+                            <button class="format-tab">?쇱툩</button>
+                        </div>
+                        <label class="check-label"><input type="checkbox" checked> ?섏씠??/label>
+                        <label class="check-label"><input type="checkbox" checked> ?쒕툕</label>
+                        <button class="btn-ghost btn-sm"><i class="fa-solid fa-expand"></i></button>
+                        <button class="btn-danger btn-sm"><i class="fa-solid fa-circle"></i></button>
+                    </div>
+                    <video id="previewVideo" controls></video>
+                </div>
+
+                <div class="preview-sidebar">
+                    <div class="control-panel">
+                        <div class="panel-title-row">
+                            <i class="fa-solid fa-closed-captioning"></i>
+                            <h3>?먮쭑 ?ㅼ젙</h3>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked id="subtitleToggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="sub-settings">
+                            <div class="sub-row">
+                                <div class="option-group">
+                                    <label>?고듃</label>
+                                    <select id="subFont">
+                                        <option>怨좎슫?뗭?</option>
+                                        <option>?섎닎怨좊뵓</option>
+                                        <option>留묒?怨좊뵓</option>
+                                    </select>
+                                </div>
+                                <div class="option-group">
+                                    <label>援듦린</label>
+                                    <select id="subWeight">
+                                        <option>留ㅼ슦 援듦쾶</option>
+                                        <option>援듦쾶</option>
+                                        <option>蹂댄넻</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="sub-row">
+                                <div class="slider-group">
+                                    <label>?ш린 <span id="subSizeVal">140</span>%</label>
+                                    <input type="range" min="50" max="200" value="140" id="subSize">
+                                </div>
+                                <div class="slider-group">
+                                    <label>Y ?꾩튂 <span id="subYVal">85</span>%</label>
+                                    <input type="range" min="0" max="100" value="85" id="subY">
+                                </div>
+                            </div>
+
+                            <div class="sub-row">
+                                <div class="slider-group">
+                                    <label>X ?꾩튂 <span id="subXVal">50</span>%</label>
+                                    <input type="range" min="0" max="100" value="50" id="subX">
+                                </div>
+                            </div>
+
+                            <div class="sub-row">
+                                <div class="color-group">
+                                    <label>?띿뒪??/label>
+                                    <input type="color" value="#FFFFFF" id="subTextColor">
+                                    <span id="subTextColorVal">#FFFFFF</span>
+                                </div>
+                                <div class="color-group">
+                                    <label>諛곌꼍</label>
+                                    <input type="color" value="#000000" id="subBgColor">
+                                    <span id="subBgColorVal">#000000</span>
+                                </div>
+                            </div>
+
+                            <div class="sub-row">
+                                <div class="slider-group">
+                                    <label>?щ챸??<span id="subOpacityVal">50</span>%</label>
+                                    <input type="range" min="0" max="100" value="50" id="subOpacity">
+                                </div>
+                            </div>
+
+                            <div class="sub-row">
+                                <div class="option-group" style="flex:1">
+                                    <label>?멸낸??/label>
+                                    <div class="outline-row">
+                                        <label class="toggle-switch sm">
+                                            <input type="checkbox" checked id="subOutline">
+                                            <span class="slider"></span>
+                                        </label>
+                                        <input type="color" value="#000000" id="subOutlineColor">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button class="btn-purple btn-full">
+                                <i class="fa-solid fa-download"></i> ?꾩껜 ?먮쭑 ?ㅼ슫濡쒕뱶 (SRT)
+                            </button>
+                            <button class="btn-ghost btn-full" style="margin-top:6px">
+                                <i class="fa-solid fa-file-lines"></i> ??щ쭔 ?ㅼ슫濡쒕뱶 (TXT)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??-->
+        <!-- ??6: 硫뷀? (?몃꽕??                      -->
+        <!-- ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??-->
+        <section class="tab-content" id="tab-meta">
+            <div class="meta-layout">
+                <div class="meta-main">
+                    <div class="card">
+                        <h2>硫뷀??곗씠??& ?몃꽕??/h2>
+                        <button class="btn-primary" id="btnMeta" onclick="generateMeta()">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> 硫뷀??곗씠???앹꽦
+                        </button>
+                        <div class="compose-status" id="metaStatus" style="display:none">
+                            <div class="spinner"></div><span>?앹꽦 以?..</span>
+                        </div>
+                    </div>
+
+                    <div id="metaResult" style="display:none">
+                        <div class="card">
+                            <h3>異붿쿇 ?쒕ぉ (?대┃?섏뿬 蹂듭궗)</h3>
+                            <ul class="title-list" id="metaTitles"></ul>
+                        </div>
+
+                        <div class="card">
+                            <h3>?댁떆?쒓렇</h3>
+                            <div class="tag-cloud" id="metaHashtags"></div>
+                        </div>
+
+                        <div class="card">
+                            <h3>?좏뒠釉??ㅻ챸?</h3>
+                            <textarea id="metaDesc" rows="5" readonly></textarea>
+                            <button class="btn-ghost btn-sm" onclick="copyText('metaDesc')">蹂듭궗</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meta-sidebar">
+                    <div class="card" id="metaThumbCard" style="display:none">
+                        <h3>?몃꽕??/h3>
+                        <img id="metaThumb" class="thumb-preview">
+                        <a id="dlThumb" class="btn-download btn-full" download>
+                            <i class="fa-solid fa-download"></i> ?몃꽕???ㅼ슫濡쒕뱶
+                        </a>
+                    </div>
+
+                    <div class="card">
+                        <h3>理쒖쥌 ?ㅼ슫濡쒕뱶</h3>
+                        <a id="dlVideoFinal" class="btn-download btn-full" download>
+                            <i class="fa-solid fa-video"></i> ?곸긽
+                        </a>
+                        <a id="dlSrtFinal" class="btn-download btn-full" download style="margin-top:8px">
+                            <i class="fa-solid fa-closed-captioning"></i> ?먮쭑(SRT)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

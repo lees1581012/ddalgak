@@ -1,5 +1,5 @@
-"""
-딸깍 - 설정
+﻿"""
+?멸퉵 - ?ㅼ젙
 """
 import os
 from pathlib import Path
@@ -15,11 +15,11 @@ APP_DIR = Path(__file__).parent
 OUTPUT_DIR = BASE_DIR / "output"
 PROMPTS_DIR = APP_DIR / "prompts"
 
-# ── 대본 ──
+# ?? ?蹂???
 SCRIPT_MODEL = "gemini-2.5-flash"
 SCRIPT_TEMPERATURE = 0.8
 
-# ── 이미지 모델 ──
+# ?? ?대?吏 紐⑤뜽 ??
 IMAGE_STYLE_DEFAULT = "animation"
 IMAGE_MODEL_DEFAULT = "flux-schnell"
 
@@ -28,7 +28,7 @@ IMAGE_MODELS = {
         "provider": "replicate",
         "model_id": "black-forest-labs/flux-schnell",
         "name": "FLUX Schnell",
-        "description": "빠르고 저렴 (~$0.003/장)",
+        "description": "鍮좊Ⅴ怨????(~$0.003/??",
         "cost": 0.003,
         "params": {"aspect_ratio": "16:9", "num_outputs": 1, "output_format": "png", "go_fast": True},
     },
@@ -36,7 +36,7 @@ IMAGE_MODELS = {
         "provider": "replicate",
         "model_id": "black-forest-labs/flux-1.1-pro",
         "name": "FLUX 1.1 Pro",
-        "description": "고품질 범용 (~$0.04/장)",
+        "description": "怨좏뭹吏?踰붿슜 (~$0.04/??",
         "cost": 0.04,
         "params": {"aspect_ratio": "16:9", "output_format": "png"},
     },
@@ -44,7 +44,7 @@ IMAGE_MODELS = {
         "provider": "replicate",
         "model_id": "black-forest-labs/flux-kontext-pro",
         "name": "FLUX Kontext Pro",
-        "description": "캐릭터 일관성 (~$0.05/장)",
+        "description": "罹먮┃???쇨???(~$0.05/??",
         "cost": 0.05,
         "params": {"aspect_ratio": "16:9", "output_format": "png"},
     },
@@ -52,7 +52,7 @@ IMAGE_MODELS = {
         "provider": "replicate",
         "model_id": "bytedance/seedream-4.5",
         "name": "Seedream 4.5",
-        "description": "리얼리스틱 (~$0.03/장)",
+        "description": "由ъ뼹由ъ뒪??(~$0.03/??",
         "cost": 0.03,
         "params": {"aspect_ratio": "16:9", "image_format": "png"},
     },
@@ -60,7 +60,7 @@ IMAGE_MODELS = {
         "provider": "replicate",
         "model_id": "ideogram-ai/ideogram-v3-turbo",
         "name": "Ideogram V3 Turbo",
-        "description": "텍스트 렌더링 최고 (~$0.02/장)",
+        "description": "?띿뒪???뚮뜑留?理쒓퀬 (~$0.02/??",
         "cost": 0.02,
         "params": {"aspect_ratio": "16:9"},
     },
@@ -68,7 +68,7 @@ IMAGE_MODELS = {
         "provider": "replicate",
         "model_id": "recraft-ai/recraft-v3",
         "name": "Recraft V3",
-        "description": "일러스트/벡터 (~$0.04/장)",
+        "description": "?쇰윭?ㅽ듃/踰≫꽣 (~$0.04/??",
         "cost": 0.04,
         "params": {"size": "1365x1024"},
     },
@@ -76,7 +76,7 @@ IMAGE_MODELS = {
         "provider": "replicate",
         "model_id": "google/imagen-4-fast",
         "name": "Imagen 4 Fast",
-        "description": "Google Imagen (~$0.02/장)",
+        "description": "Google Imagen (~$0.02/??",
         "cost": 0.02,
         "params": {"aspect_ratio": "16:9", "output_format": "png"},
     },
@@ -84,7 +84,7 @@ IMAGE_MODELS = {
         "provider": "google",
         "model_id": "gemini-3-pro-image-preview",
         "name": "Nano Banana (Gemini 3 Pro Image)",
-        "description": "최고 품질 (~$0.134/장)",
+        "description": "理쒓퀬 ?덉쭏 (~$0.134/??",
         "cost": 0.134,
         "params": {},
     },
@@ -92,21 +92,21 @@ IMAGE_MODELS = {
         "provider": "google",
         "model_id": "gemini-2.0-flash",
         "name": "Gemini 2.0 Flash Image",
-        "description": "가성비 (~$0.039/장)",
+        "description": "媛?깅퉬 (~$0.039/??",
         "cost": 0.039,
         "params": {},
     },
 }
 
-# ── TTS ──
+# ?? TTS ??
 TTS_VOICE_DEFAULT = "ko-KR-SunHiNeural"
 TTS_VOICES = {
-    "ko-KR-SunHiNeural": "선희 - 밝은 여성",
-    "ko-KR-InJoonNeural": "인준 - 남성",
-    "ko-KR-HyunsuNeural": "현수 - 남성",
+    "ko-KR-SunHiNeural": "?좏씗 - 諛앹? ?ъ꽦",
+    "ko-KR-InJoonNeural": "?몄? - ?⑥꽦",
+    "ko-KR-HyunsuNeural": "?꾩닔 - ?⑥꽦",
 }
 
-# ── FFmpeg ──
+# ?? FFmpeg ??
 VIDEO_FPS = 30
 VIDEO_RESOLUTION = "1280x720"
 VIDEO_CODEC = "libx264"
@@ -114,3 +114,23 @@ VIDEO_CRF = 18
 SUBTITLE_FONT = "NanumGothicBold"
 SUBTITLE_FONTSIZE = 48
 SUBTITLE_BORDERW = 3
+
+"""?꾨줈?앺듃 ?ㅼ젙"""
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# ?? 寃쎈줈 ??
+BASE_DIR = Path(__file__).resolve().parent.parent
+OUTPUT_DIR = BASE_DIR / "output"
+PROMPTS_DIR = APP_DIR / "prompts"
+
+# ?? API ????
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+
+# ?? ?쒕쾭 ??
+HOST = "0.0.0.0"
+PORT = int(os.getenv("PORT", 9000))
+

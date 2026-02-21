@@ -1,210 +1,459 @@
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>딸깍 - 유튜브 영상 자동 제작</title>
+    <title>딸깍 스튜디오</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-
-        <!-- 헤더 -->
-        <header class="header">
-            <h1>🎬 딸깍</h1>
-            <p>뉴스 기사 → 유튜브 영상, 클릭 네 번이면 끝</p>
-        </header>
-
-        <!-- 입력 패널 -->
-        <section class="panel input-panel" id="inputPanel">
-            <h2>1. 뉴스 기사 입력</h2>
-            <textarea id="articleInput" rows="10"
-                placeholder="여기에 뉴스 기사를 붙여넣기 하세요..."></textarea>
-
-            <div class="options-grid">
-                <!-- 카테고리 -->
-                <div class="option-group">
-                    <label>카테고리</label>
-                    <select id="categorySelect">
-                        <option value="경제" selected>경제 (국뽕)</option>
-                        <option value="심리학">심리학</option>
-                        <option value="우주">우주</option>
-                        <option value="동물">동물</option>
-                        <option value="기술">기술</option>
-                        <option value="역사">역사</option>
-                        <option value="사연">사연</option>
-                        <option value="기타">기타</option>
-                    </select>
-                </div>
-
-                <!-- 이미지 스타일 -->
-                <div class="option-group">
-                    <label>이미지 스타일</label>
-                    <select id="styleSelect">
-                        <option value="animation" selected>애니메이션</option>
-                        <option value="realistic">실사</option>
-                        <option value="retro_manhwa">레트로 만화</option>
-                        <option value="watercolor">수채화</option>
-                        <option value="documentary">다큐멘터리</option>
-                        <option value="cute_3d">귀여운 3D</option>
-                    </select>
-                </div>
-
-                <!-- 이미지 AI 모델 -->
-                <div class="option-group">
-                    <label>이미지 AI 모델</label>
-                    <select id="modelSelect">
-                        {% for key, m in image_models.items() %}
-                        <option value="{{ key }}" {{ 'selected' if key == 'flux-schnell' else '' }}>
-                            {{ m.name }} — ${{ "%.3f"|format(m.cost) }}/장
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- TTS 음성 -->
-                <div class="option-group">
-                    <label>TTS 음성</label>
-                    <select id="voiceSelect">
-                        {% for code, name in tts_voices.items() %}
-                        <option value="{{ code }}" {{ 'selected' if loop.first else '' }}>
-                            {{ name }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- 자막 -->
-                <div class="option-group">
-                    <label>자막 burn-in</label>
-                    <select id="burnSubsSelect">
-                        <option value="true" selected>예 (영상에 자막 합성)</option>
-                        <option value="false">아니오 (SRT만 생성)</option>
-                    </select>
-                </div>
+    <div class="app">
+        <!-- 상단 네비게이션 -->
+        <nav class="top-nav">
+            <div class="nav-logo" title="딸깍 스튜디오"><i class="fa-solid fa-clapperboard"></i></div>
+            <button class="nav-resume-btn" onclick="loadProjectList()" title="프로젝트 불러오기"><i class="fa-solid fa-folder-open"></i></button>
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="script" onclick="switchTab('script')"><div class="nav-tab-icon"><i class="fa-solid fa-file-lines"></i></div><span>스토리</span></button>
+                <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                <button class="nav-tab" data-tab="images" onclick="switchTab('images')" disabled><div class="nav-tab-icon"><i class="fa-solid fa-image"></i></div><span>이미지</span></button>
+                <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                <button class="nav-tab" data-tab="audio" onclick="switchTab('audio')" disabled><div class="nav-tab-icon"><i class="fa-solid fa-music"></i></div><span>오디오</span></button>
+                <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                <button class="nav-tab" data-tab="video" onclick="switchTab('video')" disabled><div class="nav-tab-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div><span>비디오</span></button>
+                <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                <button class="nav-tab" data-tab="compose" onclick="switchTab('compose')" disabled><div class="nav-tab-icon"><i class="fa-solid fa-clapperboard"></i></div><span>합성</span></button>
+                <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                <button class="nav-tab" data-tab="preview" onclick="switchTab('preview')" disabled><div class="nav-tab-icon"><i class="fa-solid fa-eye"></i></div><span>프리뷰</span></button>
+                <div class="nav-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                <button class="nav-tab" data-tab="meta" onclick="switchTab('meta')" disabled><div class="nav-tab-icon"><i class="fa-solid fa-image"></i></div><span>썸네일</span></button>
             </div>
+            <div class="nav-right"><span class="project-badge" id="projectBadge"></span></div>
+        </nav>
 
-            <!-- 예상 비용 -->
-            <div class="cost-estimate" id="costEstimate">
-                예상 비용: ~$0.09 (30장 기준)
-            </div>
-
-            <button class="btn-primary" id="startBtn" onclick="startPipeline()">
-                🚀 딸깍! 영상 만들기
-            </button>
-        </section>
-
-        <!-- 진행 상황 -->
-        <section class="panel progress-panel" id="progressPanel" style="display:none;">
-            <h2>⏳ 제작 진행 중...</h2>
-
-            <div class="steps">
-                <div class="step" id="step-script">
-                    <div class="step-icon">📝</div>
-                    <div class="step-info">
-                        <div class="step-name">대본 생성</div>
-                        <div class="step-status" id="status-script">대기 중</div>
-                    </div>
-                    <div class="step-indicator" id="indicator-script"></div>
-                </div>
-
-                <div class="step" id="step-images">
-                    <div class="step-icon">🎨</div>
-                    <div class="step-info">
-                        <div class="step-name">이미지 생성</div>
-                        <div class="step-status" id="status-images">대기 중</div>
-                        <div class="step-progress-bar" id="bar-images" style="display:none;">
-                            <div class="bar-fill" id="fill-images"></div>
+        <!-- 탭 1: 스토리 (대본) -->
+        <section class="tab-content active" id="tab-script">
+            <div class="script-input-view" id="scriptInputView">
+                <div class="script-layout-single">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>대본 스튜디오</h2>
+                            <p class="subtitle">기사를 입력하거나 직접 스크립트로 JSON 스토리보드를 생성하세요</p>
+                        </div>
+                        <div class="input-mode-tabs">
+                            <button class="mode-tab active">기사 입력</button>
+                            <button class="mode-tab" disabled>스크립트로 시작</button>
+                        </div>
+                        <div class="card-split">
+                            <div class="card-left">
+                                <div class="input-header">
+                                    <h3>기사 입력</h3>
+                                    <div class="input-actions">
+                                        <button class="btn-ghost" onclick="document.getElementById('articleInput').value=''"><i class="fa-solid fa-trash"></i> 모두 지우기</button>
+                                        <span class="shortcut-hint">Ctrl + Enter로 실행</span>
+                                    </div>
+                                </div>
+                                <textarea id="articleInput" rows="14" placeholder="스토리보드로 변환할 기사나 시나리오를 입력하세요"></textarea>
+                                <div class="gen-options">
+                                    <div class="option-group">
+                                        <label>카테고리</label>
+                                        <select id="categorySelect">
+                                            <option value="경제" selected>경제</option>
+                                            <option value="사회">사회</option>
+                                            <option value="정치">정치</option>
+                                            <option value="문화">문화</option>
+                                            <option value="기술">기술</option>
+                                            <option value="연예">연예</option>
+                                            <option value="자연">자연</option>
+                                            <option value="금융">금융</option>
+                                        </select>
+                                    </div>
+                                    <div class="option-group">
+                                        <label>언어</label>
+                                        <select><option selected>한국어</option></select>
+                                    </div>
+                                </div>
+                                <button class="btn-primary btn-full" id="btnGenScript" onclick="generateScript()"><i class="fa-solid fa-wand-magic-sparkles"></i> 스토리보드 생성</button>
+                            </div>
+                            <div class="card-right">
+                                <div class="log-section">
+                                    <h3>스트리밍 로그</h3>
+                                    <div class="log-box" id="scriptLogBox"><span class="log-dim">생성 버튼을 누르면 여기에 진행 상황이 표시됩니다</span></div>
+                                </div>
+                                <div class="json-section">
+                                    <div class="json-header">
+                                        <h3>JSON 결과</h3>
+                                        <div>
+                                            <button class="btn-ghost btn-sm" onclick="copyJSON()">복사</button>
+                                            <button class="btn-accent btn-sm" id="btnToProject" onclick="loadScriptEditor()" style="display:none">프로젝트로 전송</button>
+                                        </div>
+                                    </div>
+                                    <pre class="json-preview" id="jsonPreview">{}</pre>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="step-indicator" id="indicator-images"></div>
                 </div>
+            </div>
 
-                <div class="step" id="step-tts">
-                    <div class="step-icon">🔊</div>
-                    <div class="step-info">
-                        <div class="step-name">음성 생성</div>
-                        <div class="step-status" id="status-tts">대기 중</div>
-                        <div class="step-progress-bar" id="bar-tts" style="display:none;">
-                            <div class="bar-fill" id="fill-tts"></div>
+            <!-- 편집 모드 (생성 후) -->
+            <div class="script-edit-view" id="scriptEditView" style="display:none">
+                <div class="three-col">
+                    <div class="sidebar-left">
+                        <div class="sidebar-header"><h3>장면 <span class="count-badge" id="editSceneCount">0</span>개</h3></div>
+                        <div class="scene-sidebar-list" id="sceneSidebarList"></div>
+                        <button class="btn-ghost btn-full" onclick="addScene()"><i class="fa-solid fa-plus"></i> 장면 추가</button>
+                    </div>
+                    <div class="main-center">
+                        <div class="center-header">
+                            <span class="scene-badge" id="editSceneBadge">M1</span>
+                            <span class="scene-title-display" id="editSceneTitle">장면을 선택하세요</span>
+                        </div>
+                        <div class="scene-editor" id="sceneEditor">
+                            <div class="editor-group"><label>내레이션</label><textarea id="editNarration" rows="4" placeholder="내레이션 텍스트"></textarea></div>
+                            <div class="editor-group"><label>이미지 프롬프트</label><textarea id="editImagePrompt" rows="4" placeholder="이미지 생성 프롬프트"></textarea></div>
+                            <div class="editor-actions">
+                                <button class="btn-ghost" onclick="deleteCurrentScene()"><i class="fa-solid fa-trash"></i> 삭제</button>
+                                <button class="btn-primary" onclick="saveCurrentScene()"><i class="fa-solid fa-check"></i> 저장</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="step-indicator" id="indicator-tts"></div>
-                </div>
-
-                <div class="step" id="step-compose">
-                    <div class="step-icon">🎬</div>
-                    <div class="step-info">
-                        <div class="step-name">영상 합성</div>
-                        <div class="step-status" id="status-compose">대기 중</div>
+                    <div class="sidebar-right">
+                        <div class="control-panel">
+                            <h3>컨트롤</h3>
+                            <div class="control-group"><label>제목</label><input type="text" id="editTitle" class="input-full"></div>
+                            <button class="btn-primary btn-full" onclick="saveScriptAndNext()"><i class="fa-solid fa-arrow-right"></i> 저장 후 이미지 탭으로</button>
+                        </div>
                     </div>
-                    <div class="step-indicator" id="indicator-compose"></div>
-                </div>
-
-                <div class="step" id="step-metadata">
-                    <div class="step-icon">📋</div>
-                    <div class="step-info">
-                        <div class="step-name">메타데이터 · 썸네일</div>
-                        <div class="step-status" id="status-metadata">대기 중</div>
-                    </div>
-                    <div class="step-indicator" id="indicator-metadata"></div>
                 </div>
             </div>
-
-            <!-- 로그 -->
-            <div class="log-box" id="logBox"></div>
         </section>
 
-        <!-- 결과 -->
-        <section class="panel result-panel" id="resultPanel" style="display:none;">
-            <h2>🎉 완료!</h2>
-
-            <div class="result-grid">
-                <!-- 영상 -->
-                <div class="result-video">
-                    <video id="resultVideo" controls></video>
+        <!-- 탭 2: 이미지 -->
+        <section class="tab-content" id="tab-images">
+            <div class="three-col">
+                <div class="sidebar-left">
+                    <div class="sidebar-header"><h3>장면 <span class="count-badge" id="imgSceneCount">0</span>개</h3></div>
+                    <div class="sidebar-filter"><input type="text" placeholder="장면 검색.." class="input-sm"></div>
+                    <div class="scene-sidebar-list" id="imgSidebarList"></div>
                 </div>
-
-                <!-- 썸네일 -->
-                <div class="result-thumbnail">
-                    <h3>썸네일</h3>
-                    <img id="resultThumb" alt="썸네일">
+                <div class="main-center">
+                    <div class="center-header">
+                        <span class="scene-badge" id="imgSceneBadge">M1</span>
+                        <span class="scene-title-display" id="imgSceneTitle">-</span>
+                        <button class="btn-danger btn-sm" onclick="deleteCurrentImage()" style="margin-left:auto">삭제</button>
+                    </div>
+                    <div class="image-preview-area" id="imagePreviewArea">
+                        <div class="empty-state"><i class="fa-regular fa-image" style="font-size:3rem;opacity:0.3"></i><p>미리보기 이미지가 없습니다</p></div>
+                    </div>
+                    <div class="image-select-section">
+                        <h4>비디오생성 전달 이미지 선택 <span class="count-badge" id="imgSelectedCount">0</span>장</h4>
+                        <div class="selected-images-row" id="selectedImagesRow"><p class="empty-hint">메인 이미지가 없습니다</p></div>
+                    </div>
                 </div>
-
-                <!-- 추천 제목 -->
-                <div class="result-titles">
-                    <h3>추천 제목 (클릭하여 복사)</h3>
-                    <ul id="resultTitles"></ul>
-                </div>
-
-                <!-- 해시태그 -->
-                <div class="result-tags">
-                    <h3>해시태그</h3>
-                    <div id="resultHashtags" class="tag-cloud"></div>
-                </div>
-
-                <!-- 설명란 -->
-                <div class="result-desc">
-                    <h3>유튜브 설명란</h3>
-                    <textarea id="resultDesc" rows="5" readonly></textarea>
-                    <button class="btn-copy" onclick="copyText('resultDesc')">복사</button>
-                </div>
-
-                <!-- 다운로드 -->
-                <div class="result-downloads">
-                    <h3>다운로드</h3>
-                    <a id="dlVideo" class="btn-download" download>📹 영상 다운로드</a>
-                    <a id="dlThumb" class="btn-download" download>🖼️ 썸네일 다운로드</a>
-                    <a id="dlSrt" class="btn-download" download>📄 자막(SRT) 다운로드</a>
+                <div class="sidebar-right">
+                    <div class="control-panel">
+                        <h3>컨트롤 <span class="scene-badge-sm" id="imgControlBadge">M1</span></h3>
+                        <div class="control-group">
+                            <label>이미지 모델</label>
+                            <select id="modelSelect">
+                                {%- for key, m in image_models.items() %}
+                                <option value="{{ key }}" {{ 'selected' if key == 'flux-schnell' else '' }}>{{ m.name }} — ${{ "%.3f"|format(m.cost) }}</option>
+                                {%- endfor %}
+                            </select>
+                        </div>
+                        <button class="btn-orange btn-full" id="btnBatchImages" onclick="generateImages()"><i class="fa-solid fa-images"></i> 미생성 일괄 (<span id="imgUngenCount">0</span>)</button>
+                        <button class="btn-ghost btn-full" onclick="deleteAllImages()"><i class="fa-solid fa-trash"></i> 이미지 일괄 삭제</button>
+                        <div class="progress-section" id="imgProgressSection" style="display:none">
+                            <div class="progress-bar-wrap"><div class="progress-bar-fill" id="imgProgressFill"></div></div>
+                            <span class="progress-label" id="imgProgressText">0/0</span>
+                        </div>
+                        <hr class="divider">
+                        <button class="btn-green btn-full" onclick="selectAllImages()"><i class="fa-solid fa-check"></i> 미선택 일괄 선택</button>
+                        <button class="btn-ghost btn-full"><i class="fa-solid fa-download"></i> 선택된 이미지 다운로드 <span class="count-badge-sm">0</span></button>
+                        <hr class="divider">
+                        <div class="control-group">
+                            <div class="prompt-header"><label>생성 프롬프트</label><button class="btn-ghost btn-sm" id="btnEditPrompt" onclick="togglePromptEdit()">프롬프트 보기/수정</button></div>
+                            <textarea id="imgPromptEdit" rows="3" class="prompt-textarea" style="display:none"></textarea>
+                            <button class="btn-primary btn-full" onclick="regenerateCurrentImage()" style="margin-top:8px"><i class="fa-solid fa-wand-magic-sparkles"></i> 이미지 생성</button>
+                        </div>
+                        <div class="control-group">
+                            <label>이미지 스타일</label>
+                            <select id="styleSelect">
+                                <option value="animation" selected>애니메이션</option>
+                                <option value="realistic">실사</option>
+                                <option value="retro_manhwa">레트로 만화</option>
+                                <option value="watercolor">수채화</option>
+                                <option value="documentary">다큐멘터리</option>
+                                <option value="cute_3d">귀여운 3D</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <button class="btn-primary" onclick="resetAll()">🔄 새 영상 만들기</button>
+        <!-- 탭 3: 오디오 -->
+        <section class="tab-content" id="tab-audio">
+            <div class="three-col">
+                <div class="sidebar-left">
+                    <div class="sidebar-header"><h3>장면 <span class="count-badge" id="audioSceneCount">0</span>개</h3></div>
+                    <div class="scene-sidebar-list" id="audioSidebarList"></div>
+                </div>
+                <div class="main-center">
+                    <div class="center-header">
+                        <span class="scene-badge" id="audioSceneBadge">M1</span>
+                        <span class="scene-title-display" id="audioSceneTitle">-</span>
+                    </div>
+                    <div class="audio-center-content">
+                        <div class="audio-info-bar">
+                            <span>총 <span id="audioTotalCount">0</span>개</span>
+                            <span>완료 <span id="audioDoneCount">0</span></span>
+                            <span>진행 <span id="audioProgressCount">0</span></span>
+                        </div>
+                        <div class="audio-settings-card">
+                            <h4>음성 설정</h4>
+                            <p class="subtitle">모델과 음성을 먼저 골라 주세요</p>
+                            <div class="audio-options-row">
+                                <div class="option-group"><label>모델</label><select id="ttsModelSelect"><option selected>Edge TTS (무료)</option></select></div>
+                                <div class="option-group">
+                                    <label>음성</label>
+                                    <select id="voiceSelect">
+                                        {%- for code, name in tts_voices.items() %}
+                                        <option value="{{ code }}" {{ 'selected' if loop.first else '' }}>{{ name }}</option>
+                                        {%- endfor %}
+                                    </select>
+                                </div>
+                                <div class="option-group" style="align-self:flex-end"><button class="btn-ghost btn-sm"><i class="fa-solid fa-headphones"></i> 모든 음성 미리듣기</button></div>
+                            </div>
+                            <p class="subtitle" style="margin-top:16px">선택된 장면에 적용됩니다</p>
+                        </div>
+                        <div class="audio-action-cards">
+                            <div class="action-card">
+                                <h4>선택 장면</h4><span class="subtitle">단일 생성</span>
+                                <button class="btn-orange btn-full" onclick="generateSingleAudio()"><i class="fa-solid fa-play"></i> 오디오 생성</button>
+                                <p class="small-hint">현재 선택된 장면만 생성됩니다</p>
+                                <span class="small-hint">선택 장면 <strong id="audioSelectedScene">M1</strong></span>
+                            </div>
+                            <div class="action-card">
+                                <h4>미생성 일괄</h4><span class="subtitle">남은 <span id="audioUngenCount">0</span>개</span>
+                                <button class="btn-purple btn-full" id="btnBatchAudio" onclick="generateAudio()"><i class="fa-solid fa-layer-group"></i> 미생성 <span id="audioUngenCount2">0</span>개 일괄</button>
+                                <p class="small-hint">백그라운드에서 생성됩니다. 페이지를 떠나도 계속 됩니다</p>
+                            </div>
+                        </div>
+                        <button class="btn-danger btn-full" style="margin-top:12px" onclick="deleteAllAudio()"><i class="fa-solid fa-trash"></i> 오디오 일괄 삭제</button>
+                    </div>
+                </div>
+                <div class="sidebar-right">
+                    <div class="control-panel">
+                        <h3>오디오 미리보기</h3>
+                        <audio id="audioPreviewPlayer" controls style="width:100%;margin-bottom:12px"></audio>
+                        <div class="control-group"><label>내레이션</label><p class="narration-preview" id="audioNarrationPreview">-</p></div>
+                        <div class="control-group"><label>길이</label><span id="audioDurationPreview">-</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 탭 4: AI 비디오 생성 -->
+        <section class="tab-content" id="tab-video">
+            <div class="three-col">
+                <div class="sidebar-left">
+                    <div class="sidebar-header"><h3>장면 <span class="count-badge" id="videoSceneCount">0</span>개</h3></div>
+                    <div class="scene-sidebar-list" id="videoSidebarList"></div>
+                </div>
+                <div class="main-center">
+                    <div class="center-header">
+                        <span class="scene-badge" id="videoSceneBadge">M1</span>
+                        <span class="scene-title-display" id="videoSceneTitle">-</span>
+                        <span class="video-status-badge" id="videoStatusBadge">대기</span>
+                    </div>
+                    <div class="video-source-row">
+                        <div class="video-source-img"><img id="videoSourceImg" src="" alt="원본 이미지"><span class="label">원본 이미지</span></div>
+                        <div class="video-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                        <div class="video-result-area" id="videoResultArea">
+                            <div class="empty-state"><i class="fa-solid fa-film" style="font-size:2rem;opacity:0.3"></i><p>영상이 생성되면 여기에 표시됩니다</p></div>
+                        </div>
+                    </div>
+                    <div class="video-prompt-area">
+                        <label>ITV 프롬프트 (이미지→영상 변환 지시)</label>
+                        <textarea id="videoPromptText" rows="3" placeholder="카메라가 천천히 줌인하며 디테일한 공간을 드러낸다.."></textarea>
+                        <div class="prompt-btn-row">
+                            <button class="btn-ghost btn-sm" onclick="autoGenerateItvPrompt()"><i class="fa-solid fa-wand-magic-sparkles"></i> AI 자동생성</button>
+                            <button class="btn-ghost btn-sm" onclick="copyItvPrompt()"><i class="fa-solid fa-copy"></i> 복사</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="sidebar-right">
+                    <div class="control-panel">
+                        <h3>비디오 생성</h3>
+                        <div class="control-group">
+                            <label>생성 모드</label>
+                            <select id="videoModeSelect">
+                                <option value="comfyui">로컬 LTX2 (ComfyUI)</option>
+                                <option value="replicate">Seedance (Replicate)</option>
+                                <option value="google">Google Veo</option>
+                                <option value="manual">수동 업로드</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>생성 범위</label>
+                            <div class="range-row">
+                                <input type="number" id="videoRangeStart" value="1" min="1" class="input-sm">
+                                <span>~</span>
+                                <input type="number" id="videoRangeEnd" value="5" min="1" class="input-sm">
+                                <span>씬</span>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label>프레임 수 <span id="videoFrameInfo">(121 = 4.8초)</span></label>
+                            <input type="range" min="49" max="201" value="121" step="8" id="videoFrameCount" oninput="$('videoFrameInfo').textContent='('+ this.value +' = '+(this.value/25).toFixed(1)+'초)'">
+                        </div>
+                        <button class="btn-primary btn-full" id="btnVideoGen" onclick="generateVideos()"><i class="fa-solid fa-play"></i> 선택 범위 생성 시작</button>
+                        <button class="btn-purple btn-full" style="margin-top:8px" id="btnVideoSingle" onclick="generateSingleVideo()"><i class="fa-solid fa-wand-magic-sparkles"></i> 현재 씬만 생성</button>
+                        <div class="video-gen-status" id="videoGenStatus" style="display:none"><div class="spinner"></div><span id="videoGenStatusText">생성 중..</span></div>
+                        <hr class="divider">
+                        <div class="control-group">
+                            <label>수동 영상 업로드</label>
+                            <input type="file" id="videoUploadFile" accept="video/*">
+                            <button class="btn-ghost btn-full" onclick="uploadSceneVideo()" style="margin-top:6px"><i class="fa-solid fa-upload"></i> 현재 씬에 업로드</button>
+                        </div>
+                        <hr class="divider">
+                        <button class="btn-ghost btn-full" onclick="generateAllItvPrompts()"><i class="fa-solid fa-list"></i> 전체 ITV 프롬프트 생성</button>
+                        <button class="btn-ghost btn-full" onclick="exportItvPrompts()" style="margin-top:6px"><i class="fa-solid fa-download"></i> 프롬프트 내보내기 (JSON)</button>
+                        <hr class="divider">
+                        <div class="video-progress-summary">
+                            <span>완료: <strong id="videoDoneCount">0</strong></span>
+                            <span>대기: <strong id="videoPendingCount">0</strong></span>
+                            <span>실패: <strong id="videoFailCount">0</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 탭 5: 합성 (FFmpeg) -->
+        <section class="tab-content" id="tab-compose">
+            <div class="three-col">
+                <div class="sidebar-left">
+                    <div class="sidebar-header"><h3>장면 <span class="count-badge" id="composeSceneCount">0</span>개</h3></div>
+                    <div class="scene-sidebar-list" id="composeSidebarList"></div>
+                </div>
+                <div class="main-center">
+                    <div class="center-header">
+                        <span class="scene-badge" id="composeSceneBadge">M1</span>
+                        <span class="scene-title-display" id="composeSceneTitle">-</span>
+                    </div>
+                    <div class="compose-preview" id="composePreview">
+                        <div class="empty-state"><i class="fa-solid fa-film" style="font-size:3rem;opacity:0.3"></i><p>합성 버튼을 누르면 영상이 생성됩니다</p></div>
+                    </div>
+                </div>
+                <div class="sidebar-right">
+                    <div class="control-panel">
+                        <h3>컨트롤</h3>
+                        <div class="control-group">
+                            <label>자막 burn-in</label>
+                            <select id="burnSubsSelect">
+                                <option value="true" selected>예 (영상에 자막 합성)</option>
+                                <option value="false">아니오 (SRT만 생성)</option>
+                            </select>
+                        </div>
+                        <button class="btn-primary btn-full" id="btnCompose" onclick="composeVideo()"><i class="fa-solid fa-clapperboard"></i> 영상 합성 시작</button>
+                        <div class="compose-status" id="composeStatus" style="display:none"><div class="spinner"></div><span>합성 중... (1~5분)</span></div>
+                        <hr class="divider">
+                        <div id="composeDownloads" style="display:none">
+                            <a id="dlVideoCompose" class="btn-download btn-full" download><i class="fa-solid fa-video"></i> 영상 다운로드</a>
+                            <a id="dlSrtCompose" class="btn-download btn-full" download style="margin-top:8px"><i class="fa-solid fa-closed-captioning"></i> SRT 다운로드</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 탭 6: 프리뷰 -->
+        <section class="tab-content" id="tab-preview">
+            <div class="preview-layout">
+                <div class="preview-main">
+                    <div class="preview-toolbar">
+                        <button class="btn-ghost btn-sm"><i class="fa-solid fa-volume-up"></i></button>
+                        <div class="preview-format-tabs"><button class="format-tab active">롱폼</button><button class="format-tab">쇼츠</button></div>
+                        <label class="check-label"><input type="checkbox" checked> 하이드</label>
+                        <label class="check-label"><input type="checkbox" checked> 서브틀</label>
+                        <button class="btn-ghost btn-sm"><i class="fa-solid fa-expand"></i></button>
+                        <button class="btn-danger btn-sm"><i class="fa-solid fa-circle"></i></button>
+                    </div>
+                    <video id="previewVideo" controls></video>
+                </div>
+                <div class="preview-sidebar">
+                    <div class="control-panel">
+                        <div class="panel-title-row">
+                            <i class="fa-solid fa-closed-captioning"></i>
+                            <h3>자막 설정</h3>
+                            <label class="toggle-switch"><input type="checkbox" checked id="subtitleToggle"><span class="slider"></span></label>
+                        </div>
+                        <div class="sub-settings">
+                            <div class="sub-row">
+                                <div class="option-group"><label>폰트</label><select id="subFont"><option>고운바탕</option><option>나눔고딕</option><option>맑은고딕</option></select></div>
+                                <div class="option-group"><label>굵기</label><select id="subWeight"><option>매우 굵게</option><option>굵게</option><option>보통</option></select></div>
+                            </div>
+                            <div class="sub-row">
+                                <div class="slider-group"><label>크기 <span id="subSizeVal">140</span>%</label><input type="range" min="50" max="200" value="140" id="subSize"></div>
+                                <div class="slider-group"><label>Y 위치 <span id="subYVal">85</span>%</label><input type="range" min="0" max="100" value="85" id="subY"></div>
+                            </div>
+                            <div class="sub-row">
+                                <div class="slider-group"><label>X 위치 <span id="subXVal">50</span>%</label><input type="range" min="0" max="100" value="50" id="subX"></div>
+                            </div>
+                            <div class="sub-row">
+                                <div class="color-group"><label>텍스트</label><input type="color" value="#FFFFFF" id="subTextColor"><span id="subTextColorVal">#FFFFFF</span></div>
+                                <div class="color-group"><label>배경</label><input type="color" value="#000000" id="subBgColor"><span id="subBgColorVal">#000000</span></div>
+                            </div>
+                            <div class="sub-row">
+                                <div class="slider-group"><label>투명도 <span id="subOpacityVal">50</span>%</label><input type="range" min="0" max="100" value="50" id="subOpacity"></div>
+                            </div>
+                            <div class="sub-row">
+                                <div class="option-group" style="flex:1"><label>외곽선</label>
+                                    <div class="outline-row"><label class="toggle-switch sm"><input type="checkbox" checked id="subOutline"><span class="slider"></span></label><input type="color" value="#000000" id="subOutlineColor"></div>
+                                </div>
+                            </div>
+                            <button class="btn-purple btn-full"><i class="fa-solid fa-download"></i> 전체 자막 다운로드 (SRT)</button>
+                            <button class="btn-ghost btn-full" style="margin-top:6px"><i class="fa-solid fa-file-lines"></i> 텍스트만 다운로드 (TXT)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 탭 7: 메타 (썸네일) -->
+        <section class="tab-content" id="tab-meta">
+            <div class="meta-layout">
+                <div class="meta-main">
+                    <div class="card">
+                        <h2>메타데이터 & 썸네일</h2>
+                        <button class="btn-primary" id="btnMeta" onclick="generateMeta()"><i class="fa-solid fa-wand-magic-sparkles"></i> 메타데이터 생성</button>
+                        <div class="compose-status" id="metaStatus" style="display:none"><div class="spinner"></div><span>생성 중...</span></div>
+                    </div>
+                    <div id="metaResult" style="display:none">
+                        <div class="card"><h3>추천 제목 (클릭하여 복사)</h3><ul class="title-list" id="metaTitles"></ul></div>
+                        <div class="card"><h3>해시태그</h3><div class="tag-cloud" id="metaHashtags"></div></div>
+                        <div class="card"><h3>유튜브 설명란</h3><textarea id="metaDesc" rows="5" readonly></textarea><button class="btn-ghost btn-sm" onclick="copyText('metaDesc')">복사</button></div>
+                    </div>
+                </div>
+                <div class="meta-sidebar">
+                    <div class="card" id="metaThumbCard" style="display:none">
+                        <h3>썸네일</h3>
+                        <img id="metaThumb" class="thumb-preview">
+                        <a id="dlThumb" class="btn-download btn-full" download><i class="fa-solid fa-download"></i> 썸네일 다운로드</a>
+                    </div>
+                    <div class="card">
+                        <h3>최종 다운로드</h3>
+                        <a id="dlVideoFinal" class="btn-download btn-full" download><i class="fa-solid fa-video"></i> 영상</a>
+                        <a id="dlSrtFinal" class="btn-download btn-full" download style="margin-top:8px"><i class="fa-solid fa-closed-captioning"></i> 자막(SRT)</a>
+                    </div>
+                </div>
+            </div>
         </section>
 
     </div>
-
     <script src="/static/js/app.js"></script>
 </body>
 </html>

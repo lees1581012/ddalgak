@@ -1,0 +1,31 @@
+{
+  "global_context": {
+    "theme": "",
+    "main_subject": "",
+    "environment": [],
+    "clothing": [],
+    "props_symbols": [],
+    "season": "",
+    "color_palette": []
+  },
+  "character_sheet": {
+    "main_character": {
+      "description": "",
+      "outfit": "",
+      "age_range": ""
+    },
+    "sub_characters": []
+  },
+  "negative_prompts": [
+    "wrong number of limbs",
+    "extra fingers",
+    "three arms",
+    "deformed face",
+    "blurry text"
+  ],
+  "style_consistency": {
+    "art_style": "",
+    "lighting": "",
+    "camera": ""
+  }
+}

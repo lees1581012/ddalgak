@@ -1,4 +1,4 @@
-"""공통 유틸리티"""
+﻿"""怨듯넻 ?좏떥由ы떚"""
 import json
 import re
 import time
@@ -24,16 +24,54 @@ def load_json(path: Path) -> dict:
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-
 def extract_json_from_text(text: str) -> dict:
+    """AI 응답에서 JSON 추출 (자동 복구 포함)"""
+    # 1) ```json ... ``` 블록 추출
     pattern = r"```json\s*(.*?)\s*```"
     match = re.search(pattern, text, re.DOTALL)
-    if match:
-        return json.loads(match.group(1))
-    text = text.strip()
-    if text.startswith("{"):
-        return json.loads(text)
-    raise ValueError("AI 응답에서 JSON을 찾을 수 없습니다.")
+    raw = match.group(1) if match else text.strip()
+
+    # 2) JSON 시작점 찾기
+    start = -1
+    for i, c in enumerate(raw):
+        if c in ("{", "["):
+            start = i
+            break
+    if start == -1:
+        raise ValueError("AI 응답에서 JSON을 찾을 수 없습니다.")
+    raw = raw[start:]
+
+    # 3) 그대로 파싱 시도
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        pass
+
+    # 4) 흔한 오류 자동 수정
+    fixed = raw
+    fixed = re.sub(r",\s*}", "}", fixed)       # trailing comma before }
+    fixed = re.sub(r",\s*\]", "]", fixed)      # trailing comma before ]
+    fixed = re.sub(r"(?<!\\)\\(?![\"\\\/bfnrtu])", r"\\\\", fixed)  # bad escapes
+    try:
+        return json.loads(fixed)
+    except json.JSONDecodeError:
+        pass
+
+    # 5) 잘린 JSON 복구 - 괄호 균형 맞추기
+    opens = 0
+    for c in fixed:
+        if c == "{": opens += 1
+        elif c == "}": opens -= 1
+    if opens > 0:
+        fixed = fixed.rstrip().rstrip(",")
+        fixed += "}" * opens
+        try:
+            return json.loads(fixed)
+        except json.JSONDecodeError:
+            pass
+
+    raise ValueError(f"JSON 파싱 실패. 원본 앞 200자: {raw[:200]}")
+
 
 
 def format_time_srt(seconds: float) -> str:
