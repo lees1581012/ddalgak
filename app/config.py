@@ -99,13 +99,18 @@ IMAGE_MODELS = {
 }
 
 # ?? TTS ??
-TTS_VOICE_DEFAULT = "ko-KR-SunHiNeural"
+TTS_VOICE_DEFAULT = "ko_sunhi"
 TTS_VOICES = {
-    "ko-KR-SunHiNeural": "?좏씗 - 諛앹? ?ъ꽦",
-    "ko-KR-InJoonNeural": "?몄? - ?⑥꽦",
-    "ko-KR-HyunsuNeural": "?꾩닔 - ?⑥꽦",
+    "ko_sunhi": "선희 - 여성 (밝은 톤)",
+    "ko_injoon": "인준 - 남성 (차분)",
+    "ko_hyunsu": "현수 - 남성 (뉴스 앵커)",
+    "ko_bongjin": "봉진 - 남성",
+    "ko_gookmin": "국민 - 남성",
+    "ko_jimin": "지민 - 여성",
+    "ko_seohyeon": "서현 - 여성",
+    "ko_soonbok": "순복 - 여성 (나이든 톤)",
+    "ko_yujin": "유진 - 여성",
 }
-
 # ?? FFmpeg ??
 VIDEO_FPS = 30
 VIDEO_RESOLUTION = "1280x720"

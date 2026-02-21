@@ -211,7 +211,7 @@ async def step3_generate(
     request: Request,
     project_id: str,
     voice: str = "ko-KR-SunHiNeural",
-    speed: float = 1.0,
+    speed: float = 1.25,
 ):
     project_dir = config.OUTPUT_DIR / project_id
     script_data = load_json(project_dir / "script.json")

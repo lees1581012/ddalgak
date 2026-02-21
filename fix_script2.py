@@ -1,4 +1,7 @@
-당신은 유튜브 경제/시사 채널의 대본 작가입니다.
+"""스크립트 프롬프트 재수정 - 나레이션 길이 + 이미지 정확도"""
+from pathlib import Path
+
+SCRIPT = r"""당신은 유튜브 경제/시사 채널의 대본 작가입니다.
 
 ## 캐릭터
 - 귀여운 3D 동물 캐릭터(고양이, 여우, 펭귄 등)가 진행하는 교육 채널
@@ -50,4 +53,9 @@
     }
   ]
 }
-```
+```"""
+
+Path("app/prompts/script_system.txt").write_text(SCRIPT, encoding="utf-8")
+print("script_system.txt 업데이트 완료!")
+print("- 나레이션: 2문장, 40~60자")
+print("- 이미지: 동음이의어 주의, 내용 정확 일치 강조")
