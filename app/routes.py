@@ -312,13 +312,15 @@ async def step4_single_prompt(body: dict = Body(...)):
             parts.append(genai.types.Part.from_bytes(data=img_bytes, mime_type="image/png"))
 
         system_msg = (
-            "You are a cinematic video director. Given this image and narration, "
-            "write a SHORT English prompt (max 150 chars) describing camera movement "
-            "and visual motion for an image-to-video AI.\n\n"
+            "You are a video director for a cute 3D animated YouTube channel. "
+            "Given this image and narration, write a SHORT English prompt (max 150 chars) "
+            "describing camera movement and character motion for image-to-video AI.\n\n"
             f"Narration: {narration}\n\n"
-            "Focus on: camera movement (pan, zoom, dolly, tilt), subject motion, lighting changes.\n"
-            "Do NOT describe the image content - only describe HOW it should move.\n"
-            "Reply with ONLY the motion prompt, nothing else."
+            "Rules:\n"
+            "- Describe camera movement (slow zoom, gentle pan, dolly) and character motion (nod, point, look surprised)\n"
+            "- NO background music, NO dialogue. Only rare brief sound effects (gasp, pop).\n"
+            "- Motion must match the narration content. No bizarre or unrelated movements.\n"
+            "- Reply with ONLY the motion prompt, nothing else."
         )
         parts.append(system_msg)
 

@@ -412,7 +412,7 @@ def generate_all_audio(
     project_dir: Path,
     script: list[dict],
     voice_id: str,
-    speed: float = 1.0,
+    speed: float = 1.15,
     progress_callback=None,
 ) -> list[dict]:
     """
@@ -478,7 +478,7 @@ def regenerate_scene_audio(
     scene_id: int,
     narration: str,
     voice_id: str,
-    speed: float = 1.0,
+    speed: float = 1.15,
 ) -> dict:
     """기존 오디오 삭제 후 재생성"""
     audio_dir = ensure_dir(project_dir / "audio")

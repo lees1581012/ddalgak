@@ -34,18 +34,18 @@ def generate_itv_prompts(script: dict, output_path: Path = None) -> list:
         scene_list += f"- ??{s.get('id', '?')}: {s.get('narration', '')[:100]}\n"
         scene_list += f"  ?대?吏: {s.get('image_prompt', '')[:100]}\n"
 
-    system_prompt = """You are an Image-to-Video (I2V) prompt specialist.
-Generate camera/motion prompts to convert each still image into a 4-5 second video clip.
+    system_prompt = """You are an Image-to-Video (I2V) prompt specialist for a cute 3D animated YouTube channel.
 
 Rules:
-1. Write in English (video AI models understand English better)
-2. Specify camera movement concretely: zoom in, pan left, dolly forward, tilt up, orbit, tracking shot, etc.
-3. Include subtle subject motion: hair flowing, eyes blinking, clouds drifting, leaves rustling, etc.
-4. Include mood/lighting changes if appropriate
-5. Each prompt: 1-2 sentences, max 150 characters
-6. Return ONLY a JSON array: ["prompt1", "prompt2", ...]
-7. Array length must exactly match the number of scenes"""
-
+1. Write in English, max 150 characters per prompt.
+2. Describe camera movement: slow zoom in, gentle pan, dolly forward, soft orbit, etc.
+3. Describe character motion matching the narration: nodding, pointing, looking surprised, tilting head, etc.
+4. NO background music. NO dialogue sounds. NO ambient noise.
+5. Occasional brief sound effects ONLY (gasp, pop, whoosh) - use sparingly in some scenes.
+6. Keep movements smooth and gentle - no jarring or bizarre motions.
+7. Motion must match the scene content and narration context.
+8. Return ONLY a JSON array: ["prompt1", "prompt2", ...]
+9. Array length must exactly match the number of scenes."""
     user_prompt = f"""Video title: {title}
 
 Scenes:
