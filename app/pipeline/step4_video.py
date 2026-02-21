@@ -54,7 +54,7 @@ Scenes:
 Generate {len(scenes)} I2V prompts. Return JSON array only."""
 
     response = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=user_prompt,
         config=genai.types.GenerateContentConfig(
             system_instruction=system_prompt,

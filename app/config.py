@@ -90,7 +90,7 @@ IMAGE_MODELS = {
     },
     "gemini-flash-image": {
         "provider": "google",
-        "model_id": "gemini-2.0-flash",
+        "model_id": "gemini-2.5-flash",
         "name": "Gemini 2.0 Flash Image",
         "description": "媛?깅퉬 (~$0.039/??",
         "cost": 0.039,

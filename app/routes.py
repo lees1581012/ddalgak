@@ -323,7 +323,7 @@ async def step4_single_prompt(body: dict = Body(...)):
         parts.append(system_msg)
 
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.5-flash",
             contents=parts,
         )
         prompt = response.text.strip().strip('"')
