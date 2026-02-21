@@ -1,4 +1,4 @@
-"""Step 3: TTS 음성 생성 (Edge TTS + Kokoro TTS 하이브리드)"""
+﻿"""Step 3: TTS 음성 생성 (Edge TTS + Kokoro TTS 하이브리드)"""
 import asyncio
 import json
 import os
@@ -7,6 +7,8 @@ import logging
 from pathlib import Path
 
 import edge_tts
+import httpx
+from app import config
 import numpy as np
 import soundfile as sf
 
@@ -235,6 +237,13 @@ TTS_VOICES = {
         "label": "한국어 남성 (현수)",
         "lang": "ko",
     },
+    # ── 한국어 (ElevenLabs) ──
+    "ko_yoona": {
+        "engine": "elevenlabs",
+        "elevenlabs_voice_id": "IXHT7Ws17HAtaafMMXqL",
+        "label": "한국어 여성 — 윤아 (ElevenLabs, 자연스러운 톤)",
+        "lang": "ko",
+    },
 }
 
 # Edge TTS 기본 폴백 (Kokoro 실패 시)
@@ -294,6 +303,67 @@ def _generate_kokoro(
 
     duration = len(full_audio) / 24000
     logger.info(f"Kokoro 생성 완료: {output_path.name} ({duration:.1f}s)")
+    return duration
+
+
+
+# ──────────────────────────────────────────────
+# ElevenLabs TTS 생성
+# ──────────────────────────────────────────────
+def _generate_elevenlabs(
+    text: str,
+    voice_id: str,
+    speed: float,
+    output_path: Path,
+) -> float:
+    """
+    ElevenLabs API로 음성 생성 → MP3 저장.
+    반환값: 오디오 길이(초).
+    """
+    api_key = config.ELEVENLABS_API_KEY
+    if not api_key:
+        raise RuntimeError("ELEVENLABS_API_KEY가 설정되지 않았습니다. .env를 확인하세요.")
+
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+    headers = {
+        "xi-api-key": api_key,
+        "Content-Type": "application/json",
+        "Accept": "audio/mpeg",
+    }
+    payload = {
+        "text": text,
+        "model_id": "eleven_multilingual_v2",
+        "voice_settings": {
+            "stability": 0.5,
+            "similarity_boost": 0.75,
+            "style": 0.3,
+            "use_speaker_boost": True,
+        },
+    }
+
+    resp = httpx.post(url, json=payload, headers=headers, timeout=60)
+    if resp.status_code != 200:
+        raise RuntimeError(f"ElevenLabs API 오류: {resp.status_code} {resp.text[:200]}")
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_bytes(resp.content)
+
+    # 속도 조절 (1.0이 아닌 경우 FFmpeg atempo 적용)
+    if speed != 1.0 and 0.5 <= speed <= 2.0:
+        import subprocess
+        temp_path = output_path.with_name(output_path.stem + "_orig.mp3")
+        output_path.rename(temp_path)
+        cmd = [
+            "ffmpeg", "-y", "-i", str(temp_path),
+            "-filter:a", f"atempo={speed}",
+            "-vn", str(output_path)
+        ]
+        subprocess.run(cmd, capture_output=True, check=True)
+        temp_path.unlink()
+        logger.info(f"ElevenLabs 속도 조절: {speed}x")
+
+    duration = _estimate_mp3_duration(output_path)
+    logger.info(f"ElevenLabs 생성 완료: {output_path.name} ({duration:.1f}s)")
     return duration
 
 
@@ -398,6 +468,12 @@ def generate_scene_audio(
         mp3_path = output_path.with_suffix(".mp3")
         dur = _generate_edge(text, fallback_voice, speed, mp3_path)
         return {"path": str(mp3_path), "duration": dur, "engine": "edge-fallback"}
+
+    # ElevenLabs 엔진
+    if engine == "elevenlabs":
+        mp3_path = output_path.with_suffix(".mp3")
+        dur = _generate_elevenlabs(text, voice_cfg["elevenlabs_voice_id"], speed, mp3_path)
+        return {"path": str(mp3_path), "duration": dur, "engine": "elevenlabs"}
 
     # Edge TTS 엔진
     mp3_path = output_path.with_suffix(".mp3")

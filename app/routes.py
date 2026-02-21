@@ -569,11 +569,38 @@ async def step6_run(body: dict = Body(...)):
     try:
         script_data = load_json(project_dir / "script.json")
         result = await asyncio.to_thread(
-            step6_metadata.generate, script_data, project_dir
+            step6_metadata.generate_metadata, script_data
         )
-        return JSONResponse(result)
+        # metadata.json 저장
+        import json
+        meta_path = project_dir / "metadata.json"
+        meta_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+        return JSONResponse({"metadata": result})
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@router.post("/api/step6/thumbnail")
+async def step6_thumbnail(body: dict = Body(...)):
+    project_id = body["project_id"]
+    project_dir = config.OUTPUT_DIR / project_id
+
+    try:
+        script_data = load_json(project_dir / "script.json")
+        thumb_path = await asyncio.to_thread(
+            step6_metadata.generate_thumbnail, script_data, project_dir
+        )
+        return JSONResponse({"thumbnail_url": f"/api/project/{project_id}/final/thumbnail"})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@router.get("/api/project/{project_id}/final/thumbnail")
+async def get_thumbnail(project_id: str):
+    thumb_path = config.OUTPUT_DIR / project_id / "final" / "thumbnail.png"
+    if thumb_path.exists():
+        return FileResponse(thumb_path, media_type="image/png")
+    return JSONResponse({"error": "썸네일 없음"}, status_code=404)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -713,3 +740,4 @@ async def get_scene_audio(project_id: str, scene_id: int):
             mt = "audio/wav" if ext == ".wav" else "audio/mpeg"
             return FileResponse(path, media_type=mt)
     return JSONResponse({"error": "오디오 없음"}, status_code=404)
+

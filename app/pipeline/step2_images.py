@@ -1,4 +1,4 @@
-"""STEP 2: 이미지 생성 (Replicate / Google / ComfyUI 선택)"""
+﻿"""STEP 2: 이미지 생성 (Replicate / Google / ComfyUI 선택)"""
 import json
 import time
 import random
@@ -20,10 +20,13 @@ def get_styles() -> dict:
         return json.load(f)
 
 
-def build_prompt(image_prompt: str, style_key: str) -> str:
+def build_prompt(image_prompt: str, style_key: str, provider: str = "") -> str:
     styles = get_styles()
     style = styles.get(style_key, styles["animation"])
-    return f"{style['prefix']} {image_prompt}{style['suffix']}"
+    base = f"{style['prefix']} {image_prompt}{style['suffix']}"
+    if provider == "comfyui":
+        return f"DisneyIZT, This image is a Disney-Pixar 3D animation style, featuring a stylized, cartoon character, high detailed, ultra 4k, masterpiece, {base}"
+    return base
 
 
 def _gen_replicate(prompt: str, model_cfg: dict, out_path: Path) -> Path:
@@ -147,8 +150,8 @@ def _build_zimage_workflow(prompt: str, seed: int = None, width: int = 1024, hei
         },
         "48": {
             "inputs": {
-                "lora_name": "pixel_art_style_z_image_turbo.safetensors",
-                "strength_model": 1,
+                "lora_name": "Disney_IZT_ATK_V1_000000750.safetensors",
+                "strength_model": 0.6,
                 "model": ["46", 0]
             },
             "class_type": "LoraLoaderModelOnly"
@@ -167,6 +170,7 @@ def _gen_comfyui(prompt: str, model_cfg: dict, out_path: Path) -> Path:
     # 프롬프트 큐잉
     result = _comfy_post("/prompt", workflow)
     prompt_id = result["prompt_id"]
+    logger.info(f"ComfyUI z-image 프롬프트: {prompt[:120]}")
     logger.info(f"ComfyUI z-image 큐잉: {prompt_id}")
 
     # 완료 대기
@@ -215,7 +219,7 @@ def generate_single(scene: dict, style_key: str, model_key: str, output_dir: Pat
     output_dir.mkdir(parents=True, exist_ok=True)
 
     model_cfg = config.IMAGE_MODELS.get(model_key, config.IMAGE_MODELS[config.IMAGE_MODEL_DEFAULT])
-    prompt = build_prompt(scene["image_prompt"], style_key)
+    prompt = build_prompt(scene["image_prompt"], style_key, provider=model_cfg["provider"])
     out_path = output_dir / f"scene_{scene['id']:03d}.png"
 
     try:
@@ -225,3 +229,7 @@ def generate_single(scene: dict, style_key: str, model_key: str, output_dir: Pat
         return {"scene_id": scene["id"], "image_path": str(out_path), "prompt": prompt, "status": "success"}
     except Exception as e:
         return {"scene_id": scene["id"], "image_path": None, "prompt": prompt, "status": f"failed: {e}"}
+
+
+
+

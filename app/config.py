@@ -10,6 +10,7 @@ load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
 
+ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
 BASE_DIR = Path(__file__).parent.parent
 APP_DIR = Path(__file__).parent
 OUTPUT_DIR = BASE_DIR / "output"
@@ -118,6 +119,7 @@ TTS_VOICES = {
     "ko_seohyeon": "서현 - 여성",
     "ko_soonbok": "순복 - 여성 (나이든 톤)",
     "ko_yujin": "유진 - 여성",
+    "ko_yoona": "윤아 - 여성 (ElevenLabs, 자연스러운 톤)",
 }
 # ?? FFmpeg ??
 VIDEO_FPS = 30

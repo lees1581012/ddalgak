@@ -225,6 +225,7 @@
                                     </select>
                                 </div>
                                 <div class="option-group" style="align-self:flex-end"><button class="btn-ghost btn-sm"><i class="fa-solid fa-headphones"></i> 모든 음성 미리듣기</button></div>
+                                <div class="option-group"><label>속도</label><select id="ttsSpeed"><option value="1.0">1.0x</option><option value="1.1">1.1x</option><option value="1.15">1.15x</option><option value="1.2">1.2x</option><option value="1.25" selected>1.25x</option><option value="1.3">1.3x</option><option value="1.5">1.5x</option></select></div>
                             </div>
                             <p class="subtitle" style="margin-top:16px">선택된 장면에 적용됩니다</p>
                         </div>
@@ -439,8 +440,9 @@
                     </div>
                 </div>
                 <div class="meta-sidebar">
-                    <div class="card" id="metaThumbCard" style="display:none">
+                    <div class="card" id="metaThumbCard">
                         <h3>썸네일</h3>
+                        <button class="btn-primary btn-sm" id="btnThumb" onclick="generateThumbnail()" style="margin-bottom:12px"><i class="fa-solid fa-wand-magic-sparkles"></i> 썸네일 생성</button>
                         <img id="metaThumb" class="thumb-preview">
                         <a id="dlThumb" class="btn-download btn-full" download><i class="fa-solid fa-download"></i> 썸네일 다운로드</a>
                     </div>
