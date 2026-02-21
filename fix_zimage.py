@@ -1,4 +1,11 @@
-"""STEP 2: 이미지 생성 (Replicate / Google / ComfyUI 선택)"""
+"""ComfyUI z-image (ZIT) 이미지 생성 추가"""
+from pathlib import Path
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 1) step2_images.py에 ComfyUI 핸들러 추가
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NEW_STEP2 = '''"""STEP 2: 이미지 생성 (Replicate / Google / ComfyUI 선택)"""
 import json
 import time
 import random
@@ -23,7 +30,7 @@ def get_styles() -> dict:
 def build_prompt(image_prompt: str, style_key: str) -> str:
     styles = get_styles()
     style = styles.get(style_key, styles["animation"])
-    return f"{style['prefix']} {image_prompt}{style['suffix']}"
+    return f"{style[\'prefix\']} {image_prompt}{style[\'suffix\']}"
 
 
 def _gen_replicate(prompt: str, model_cfg: dict, out_path: Path) -> Path:
@@ -216,7 +223,7 @@ def generate_single(scene: dict, style_key: str, model_key: str, output_dir: Pat
 
     model_cfg = config.IMAGE_MODELS.get(model_key, config.IMAGE_MODELS[config.IMAGE_MODEL_DEFAULT])
     prompt = build_prompt(scene["image_prompt"], style_key)
-    out_path = output_dir / f"scene_{scene['id']:03d}.png"
+    out_path = output_dir / f"scene_{scene[\'id\']:03d}.png"
 
     try:
         handler = _HANDLERS[model_cfg["provider"]]
@@ -225,3 +232,45 @@ def generate_single(scene: dict, style_key: str, model_key: str, output_dir: Pat
         return {"scene_id": scene["id"], "image_path": str(out_path), "prompt": prompt, "status": "success"}
     except Exception as e:
         return {"scene_id": scene["id"], "image_path": None, "prompt": prompt, "status": f"failed: {e}"}
+'''
+
+# 이스케이프 처리
+content = NEW_STEP2.replace("\\'", "'")
+Path("app/pipeline/step2_images.py").write_text(content, encoding="utf-8", newline="\n")
+print("1) step2_images.py 업데이트 완료 (ComfyUI z-image 추가)")
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 2) config.py에 z-image 모델 추가
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+cfg = Path("app/config.py").read_text(encoding="utf-8")
+
+ZIT_ENTRY = '''    "z-image": {
+        "provider": "comfyui",
+        "model_id": "z_image_turbo_bf16",
+        "name": "Z-Image Turbo (로컬 ComfyUI)",
+        "description": "로컬 ComfyUI z-image turbo - 무료, 빠름",
+        "cost": 0,
+        "params": {"width": 1024, "height": 576},
+    },'''
+
+# IMAGE_MODELS 딕셔너리의 첫 번째 항목 앞에 삽입
+if '"z-image"' not in cfg:
+    # "flux-schnell" 앞에 삽입
+    marker = '    "flux-schnell"'
+    if marker in cfg:
+        cfg = cfg.replace(marker, ZIT_ENTRY + "\n" + marker)
+        Path("app/config.py").write_text(cfg, encoding="utf-8", newline="\n")
+        print("2) config.py에 z-image 모델 추가 완료")
+    else:
+        # IMAGE_MODELS = { 바로 뒤에 삽입
+        marker2 = "IMAGE_MODELS = {"
+        if marker2 in cfg:
+            cfg = cfg.replace(marker2, marker2 + "\n" + ZIT_ENTRY)
+            Path("app/config.py").write_text(cfg, encoding="utf-8", newline="\n")
+            print("2) config.py에 z-image 모델 추가 완료 (IMAGE_MODELS 직후)")
+        else:
+            print("2) config.py에서 삽입 위치 못 찾음")
+else:
+    print("2) config.py에 z-image 이미 존재")
+
+print("\nz-image 추가 완료! 서버 재시작 후 이미지 탭에서 'Z-Image Turbo' 선택 가능")

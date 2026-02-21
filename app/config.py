@@ -24,6 +24,14 @@ IMAGE_STYLE_DEFAULT = "animation"
 IMAGE_MODEL_DEFAULT = "flux-schnell"
 
 IMAGE_MODELS = {
+    "z-image": {
+        "provider": "comfyui",
+        "model_id": "z_image_turbo_bf16",
+        "name": "Z-Image Turbo (로컬 ComfyUI)",
+        "description": "로컬 ComfyUI z-image turbo - 무료, 빠름",
+        "cost": 0,
+        "params": {"width": 1024, "height": 576},
+    },
     "flux-schnell": {
         "provider": "replicate",
         "model_id": "black-forest-labs/flux-schnell",
