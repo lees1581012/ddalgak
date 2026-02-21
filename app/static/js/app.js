@@ -637,10 +637,24 @@ async function autoGenerateItvPrompt() {
     const idx = STATE.selectedSceneIdx;
     const scene = STATE.scenes[idx];
     if (!scene) return;
-    const prompt = `Camera slowly zooms in. ${scene.narration.slice(0, 100)}`;
-    $('videoPromptText').value = prompt;
-    if (!STATE.itvPrompts) STATE.itvPrompts = [];
-    STATE.itvPrompts[idx] = prompt;
+    $('videoPromptText').value = 'AI 생성 중...';
+    try {
+        const res = await fetch('/api/step4/single-prompt', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                project_id: STATE.projectId,
+                scene_id: scene.id || (idx + 1),
+                narration: scene.narration || ''
+            })
+        });
+        const data = await res.json();
+        $('videoPromptText').value = data.prompt;
+        if (!STATE.itvPrompts) STATE.itvPrompts = [];
+        STATE.itvPrompts[idx] = data.prompt;
+    } catch (e) {
+        $('videoPromptText').value = 'Slow cinematic zoom in with gentle lighting';
+    }
 }
 
 function copyItvPrompt() {

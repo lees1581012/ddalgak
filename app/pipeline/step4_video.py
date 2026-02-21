@@ -15,7 +15,7 @@ from app.pipeline.utils import ensure_dir, save_json, load_json
 
 logger = logging.getLogger(__name__)
 
-COMFYUI_URL = "http://localhost:8188"
+COMFYUI_URL = "http://localhost:8000"
 
 
 # ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??
@@ -322,10 +322,11 @@ def _build_ltx2_workflow(
         },
         "92:60": {
             "inputs": {
-                "clip_name": "gemma_3_12B_it_fp4_mixed.safetensors",
-                "type": "ltxv"
+                "text_encoder": "gemma_3_12B_it_fp4_mixed.safetensors",
+                "ckpt_name": "ltx-2-19b-dev-fp8.safetensors",
+                "device": "default"
             },
-            "class_type": "CLIPLoader"
+            "class_type": "LTXAVTextEncoderLoader"
         },
         "92:66": {
             "inputs": {"sampler_name": "gradient_estimation"},
@@ -617,23 +618,50 @@ def _download_output(prompt_id: str, history_data: dict, output_dir: Path,
     outputs = history_data.get(prompt_id, {}).get("outputs", {})
 
     for node_id, node_out in outputs.items():
-        # video, videos, gifs 키 모두 확인
-        for key in ("video", "videos", "gifs"):
+        # video, videos, gifs, images 키 모두 확인
+        for key in ("video", "videos", "gifs", "images"):
             if key in node_out:
                 for item in node_out[key]:
                     filename = item.get("filename", "")
                     subfolder = item.get("subfolder", "")
-                    url = f"{COMFYUI_URL}/view?filename={filename}"
+                    filetype = item.get("type", "output")
+
+                    # ComfyUI /view API로 다운로드
+                    params = f"filename={filename}&type={filetype}"
                     if subfolder:
-                        url += f"&subfolder={subfolder}"
+                        params += f"&subfolder={subfolder}"
+                    url = f"{COMFYUI_URL}/view?{params}"
 
-                    resp = urllib.request.urlopen(url)
-                    video_data = resp.read()
+                    try:
+                        resp = urllib.request.urlopen(url)
+                        video_data = resp.read()
+                        ext = Path(filename).suffix or ".mp4"
+                        if ext not in (".mp4", ".webm", ".mov"):
+                            continue
+                        final_path = output_dir / f"scene_{scene_id:03d}{ext}"
+                        final_path.write_bytes(video_data)
+                        logger.info(f"씬 {scene_id}: 다운로드 완료 ({len(video_data)} bytes)")
+                        return final_path
+                    except Exception as e:
+                        logger.warning(f"씬 {scene_id}: 다운로드 실패 {filename}: {e}")
+                        continue
 
-                    ext = Path(filename).suffix or ".mp4"
-                    final_path = output_dir / f"scene_{scene_id:03d}{ext}"
-                    final_path.write_bytes(video_data)
-                    return final_path
+    # fallback: ComfyUI output 폴더에서 직접 찾기
+    comfy_output = Path("C:/Users/A/Documents/ComfyUI/output")
+    import glob
+    pattern = str(comfy_output / f"ddalgak_i2v_{scene_id:05d}*.mp4")
+    matches = sorted(glob.glob(pattern), reverse=True)
+    if not matches:
+        pattern = str(comfy_output / "ddalgak_i2v_*.mp4")
+        matches = sorted(glob.glob(pattern), key=lambda x: Path(x).stat().st_mtime, reverse=True)
+    
+    if matches:
+        import shutil
+        src = Path(matches[0])
+        final_path = output_dir / f"scene_{scene_id:03d}.mp4"
+        shutil.copy2(src, final_path)
+        logger.info(f"씬 {scene_id}: fallback 복사 {src} -> {final_path}")
+        return final_path
 
     logger.warning(f"씬 {scene_id}: ComfyUI 출력에서 비디오를 찾을 수 없음")
     return None

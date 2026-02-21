@@ -1,4 +1,6 @@
-#!/usr/bin/env python3
+"""step5_compose.py를 비디오+이미지 혼합 합성으로 업그레이드"""
+
+NEW_COMPOSE = r'''#!/usr/bin/env python3
 """
 step5_compose.py - 이미지/비디오 + 오디오 + 자막 → MP4
 비디오가 있는 씬은 mp4 사용, 없으면 이미지 슬라이드쇼
@@ -228,3 +230,9 @@ def compose_video(
 
 def run(image_results, audio_results, script_data, project_dir, burn_subtitles=True):
     return compose_video(script_data, image_results, audio_results, project_dir, burn_subtitles)
+'''
+
+with open('app/pipeline/step5_compose.py', 'w', encoding='utf-8', newline='\n') as f:
+    f.write(NEW_COMPOSE)
+
+print("Done! step5_compose.py 업그레이드 완료")
