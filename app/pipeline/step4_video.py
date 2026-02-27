@@ -77,6 +77,17 @@ Generate {len(scenes)} I2V prompts. Return JSON array only."""
         prompts.append("Slow cinematic zoom in with subtle ambient movement")
     prompts = prompts[:len(scenes)]
 
+    # 고정 suffix: 뜬금없는 요소 방지
+    ITV_SUFFIX = (
+        ". Do not introduce any new elements. "
+        "No new characters, animals, people, objects, or props that are not in the original image. "
+        "No morphing, no transformation, no scene change. "
+        "No text overlay, no subtitles, no UI. "
+        "No sudden camera jumps or rapid movements. "
+        "Only animate what already exists in the image with slow, gentle motion."
+    )
+    prompts = [p.rstrip(". ") + ITV_SUFFIX for p in prompts]
+
     if output_path:
         save_json(prompts, output_path)
         logger.info(f"ITV ?꾨＼?꾪듃 {len(prompts)}媛???? {output_path}")
