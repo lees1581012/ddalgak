@@ -21,12 +21,11 @@ def get_styles() -> dict:
 
 
 def build_prompt(image_prompt: str, style_key: str, provider: str = "") -> str:
+    if provider == "comfyui":
+        return image_prompt
     styles = get_styles()
     style = styles.get(style_key, styles["animation"])
-    base = f"{style['prefix']} {image_prompt}{style['suffix']}"
-    if provider == "comfyui":
-        return f"DisneyIZT, This image is a Disney-Pixar 3D animation style, featuring a stylized, cartoon character, high detailed, ultra 4k, masterpiece, {base}"
-    return base
+    return f"{style['prefix']} {image_prompt}{style['suffix']}"
 
 
 def _gen_replicate(prompt: str, model_cfg: dict, out_path: Path) -> Path:
@@ -144,17 +143,9 @@ def _build_zimage_workflow(prompt: str, seed: int = None, width: int = 1024, hei
         "47": {
             "inputs": {
                 "shift": 3,
-                "model": ["48", 0]
-            },
-            "class_type": "ModelSamplingAuraFlow"
-        },
-        "48": {
-            "inputs": {
-                "lora_name": "Disney_IZT_ATK_V1_000000750.safetensors",
-                "strength_model": 0.6,
                 "model": ["46", 0]
             },
-            "class_type": "LoraLoaderModelOnly"
+            "class_type": "ModelSamplingAuraFlow"
         },
     }}
 
@@ -229,6 +220,7 @@ def generate_single(scene: dict, style_key: str, model_key: str, output_dir: Pat
         return {"scene_id": scene["id"], "image_path": str(out_path), "prompt": prompt, "status": "success"}
     except Exception as e:
         return {"scene_id": scene["id"], "image_path": None, "prompt": prompt, "status": f"failed: {e}"}
+
 
 
 

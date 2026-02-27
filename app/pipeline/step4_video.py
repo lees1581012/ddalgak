@@ -38,14 +38,16 @@ def generate_itv_prompts(script: dict, output_path: Path = None) -> list:
 
 Rules:
 1. Write in English, max 150 characters per prompt.
-2. Describe camera movement: slow zoom in, gentle pan, dolly forward, soft orbit, etc.
-3. Describe character motion matching the narration: nodding, pointing, looking surprised, tilting head, etc.
-4. NO background music. NO dialogue sounds. NO ambient noise.
-5. Occasional brief sound effects ONLY (gasp, pop, whoosh) - use sparingly in some scenes.
-6. Keep movements smooth and gentle - no jarring or bizarre motions.
-7. Motion must match the scene content and narration context.
-8. Return ONLY a JSON array: ["prompt1", "prompt2", ...]
-9. Array length must exactly match the number of scenes."""
+2. ONLY describe what is ALREADY in the image. Do NOT add new characters, objects, animals, or people.
+3. Do NOT change the background or setting. The scene must look identical to the source image.
+4. Describe camera movement: slow zoom in, gentle pan, dolly forward, soft orbit, slight tilt, etc.
+5. Describe subtle character motion ONLY for characters visible in the image: blinking, nodding, pointing, looking surprised, tilting head, breathing, tail swaying, etc.
+6. NO background music. NO dialogue sounds. NO ambient noise. NO sound effects.
+7. Keep movements smooth, slow, and gentle - no fast or jarring motions.
+8. Do NOT morph, transform, or distort any element in the image.
+9. Do NOT add text, UI elements, or watermarks.
+10. Return ONLY a JSON array: ["prompt1", "prompt2", ...]
+11. Array length must exactly match the number of scenes."""
     user_prompt = f"""Video title: {title}
 
 Scenes:
