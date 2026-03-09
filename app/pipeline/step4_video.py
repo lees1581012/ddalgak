@@ -15,7 +15,7 @@ from app.pipeline.utils import ensure_dir, save_json, load_json
 
 logger = logging.getLogger(__name__)
 
-COMFYUI_URL = "http://localhost:8000"
+COMFYUI_URL = config.COMFYUI_BASE_URL
 
 
 # ?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧?먥븧??

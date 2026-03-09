@@ -139,7 +139,7 @@ async def step2_generate(
                 "total": len(scenes),
                 "scene_id": scene["id"],
                 "status": result["status"],
-                "image_path": result.get("path", ""),
+                "image_path": result.get("image_path", ""),
             }, ensure_ascii=False)}
 
         save_json(image_results, project_dir / "image_results.json")

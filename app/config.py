@@ -11,6 +11,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
 
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
+COMFYUI_BASE_URL = os.getenv("COMFYUI_BASE_URL", "http://localhost:8000")
 BASE_DIR = Path(__file__).parent.parent
 APP_DIR = Path(__file__).parent
 OUTPUT_DIR = BASE_DIR / "output"

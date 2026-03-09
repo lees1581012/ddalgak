@@ -143,17 +143,27 @@ def compose_video(
             # 이미지 슬라이드쇼
             img_file = images_dir / f"scene_{sid:03d}.png"
             if not img_file.exists():
-                console.print(f"  [yellow]씬 {sid}: 이미지 없음, 스킵[/yellow]")
-                continue
-            cmd = [
-                "ffmpeg", "-y",
-                "-loop", "1", "-i", str(img_file),
-                "-t", f"{dur:.3f}",
-                "-vf", "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2:black",
-                "-c:v", "libx264", "-preset", "fast", "-crf", "18",
-                "-an", "-pix_fmt", "yuv420p", "-r", "30",
-                str(clip_path)
-            ]
+                # 이미지가 없으면 검은 화면 플레이스홀더 사용
+                console.print(f"  [yellow]씬 {sid}: 이미지 없음, 검은 화면 사용[/yellow]")
+                # 검은 화면 생성 (무한 루프 + -t로 길이 제한)
+                cmd = [
+                    "ffmpeg", "-y",
+                    "-f", "lavfi", "-i", "color=c=black:s=1280x720:r=30",
+                    "-t", f"{dur:.3f}",
+                    "-c:v", "libx264", "-preset", "fast", "-crf", "18",
+                    "-an", "-pix_fmt", "yuv420p",
+                    str(clip_path)
+                ]
+            else:
+                cmd = [
+                    "ffmpeg", "-y",
+                    "-loop", "1", "-i", str(img_file),
+                    "-t", f"{dur:.3f}",
+                    "-vf", "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2:black",
+                    "-c:v", "libx264", "-preset", "fast", "-crf", "18",
+                    "-an", "-pix_fmt", "yuv420p", "-r", "30",
+                    str(clip_path)
+                ]
 
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
         if result.returncode == 0:
@@ -219,8 +229,8 @@ def compose_video(
         if result2.returncode != 0:
             raise RuntimeError(f"FFmpeg 합성 실패:\n{result2.stderr[-1000:]}")
 
-    # temp 정리
-    shutil.rmtree(temp_dir, ignore_errors=True)
+    # temp 정리 (일단 보존)
+    # shutil.rmtree(temp_dir, ignore_errors=True)
 
     console.print(f"  [bold green]영상 완성: {output_path}[/bold green]")
     return output_path

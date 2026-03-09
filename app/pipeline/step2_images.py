@@ -12,7 +12,7 @@ from app import config
 
 logger = logging.getLogger(__name__)
 
-COMFYUI_URL = "http://localhost:8000"
+COMFYUI_URL = config.COMFYUI_BASE_URL
 
 
 def get_styles() -> dict:
@@ -212,6 +212,10 @@ def generate_single(scene: dict, style_key: str, model_key: str, output_dir: Pat
     model_cfg = config.IMAGE_MODELS.get(model_key, config.IMAGE_MODELS[config.IMAGE_MODEL_DEFAULT])
     prompt = build_prompt(scene["image_prompt"], style_key, provider=model_cfg["provider"])
     out_path = output_dir / f"scene_{scene['id']:03d}.png"
+
+    # 이미 존재하면 건너뜀
+    if out_path.exists():
+        return {"scene_id": scene["id"], "image_path": str(out_path), "prompt": prompt, "status": "success"}
 
     try:
         handler = _HANDLERS[model_cfg["provider"]]

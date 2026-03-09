@@ -58,13 +58,20 @@ def extract_json_from_text(text: str) -> dict:
         pass
 
     # 5) 잘린 JSON 복구 - 괄호 균형 맞추기
-    opens = 0
+    brace_open = 0  # {
+    bracket_open = 0  # [
     for c in fixed:
-        if c == "{": opens += 1
-        elif c == "}": opens -= 1
-    if opens > 0:
+        if c == "{": brace_open += 1
+        elif c == "}": brace_open -= 1
+        elif c == "[": bracket_open += 1
+        elif c == "]": bracket_open -= 1
+
+    # 필요한 닫는 괄호 추가
+    if brace_open > 0 or bracket_open > 0:
         fixed = fixed.rstrip().rstrip(",")
-        fixed += "}" * opens
+        # 배열부터 닫기 (중첩 구조 고려)
+        fixed += "]" * bracket_open
+        fixed += "}" * brace_open
         try:
             return json.loads(fixed)
         except json.JSONDecodeError:

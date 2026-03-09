@@ -399,13 +399,43 @@ def _generate_edge(
     output_path: Path,
 ) -> float:
     """Edge TTS 동기 래퍼"""
-    loop = asyncio.new_event_loop()
     try:
-        return loop.run_until_complete(
-            _generate_edge_async(text, edge_voice, speed, output_path)
-        )
-    finally:
-        loop.close()
+        # 이미 실행 중인 이벤트 루프가 있으면 사용
+        loop = asyncio.get_running_loop()
+        # 새로운 스레드에서 실행
+        import concurrent.futures
+        import threading
+
+        result = [None]
+        exception = [None]
+
+        def run_in_new_loop():
+            new_loop = asyncio.new_event_loop()
+            try:
+                result[0] = new_loop.run_until_complete(
+                    _generate_edge_async(text, edge_voice, speed, output_path)
+                )
+            except Exception as e:
+                exception[0] = e
+            finally:
+                new_loop.close()
+
+        thread = threading.Thread(target=run_in_new_loop)
+        thread.start()
+        thread.join()
+
+        if exception[0]:
+            raise exception[0]
+        return result[0]
+    except RuntimeError:
+        # 실행 중인 이벤트 루프가 없으면 기존 방식대로
+        loop = asyncio.new_event_loop()
+        try:
+            return loop.run_until_complete(
+                _generate_edge_async(text, edge_voice, speed, output_path)
+            )
+        finally:
+            loop.close()
 
 
 def _estimate_mp3_duration(path: Path) -> float:
