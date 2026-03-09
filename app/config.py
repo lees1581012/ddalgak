@@ -12,9 +12,11 @@ REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
 
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
 COMFYUI_BASE_URL = os.getenv("COMFYUI_BASE_URL", "http://localhost:8000")
+OUTPUT_DIR = Path(os.getenv("OUTPUT_DIR", ""))
 BASE_DIR = Path(__file__).parent.parent
 APP_DIR = Path(__file__).parent
-OUTPUT_DIR = BASE_DIR / "output"
+if not OUTPUT_DIR:
+    OUTPUT_DIR = BASE_DIR / "output"
 PROMPTS_DIR = APP_DIR / "prompts"
 
 # ?? ?蹂???
@@ -140,7 +142,7 @@ load_dotenv()
 
 # ?? 寃쎈줈 ??
 BASE_DIR = Path(__file__).resolve().parent.parent
-OUTPUT_DIR = BASE_DIR / "output"
+# OUTPUT_DIR은 위에서 이미 설정됨
 PROMPTS_DIR = APP_DIR / "prompts"
 
 # ?? API ????
