@@ -21,8 +21,6 @@ def get_styles() -> dict:
 
 
 def build_prompt(image_prompt: str, style_key: str, provider: str = "") -> str:
-    if provider == "comfyui":
-        return image_prompt
     styles = get_styles()
     style = styles.get(style_key, styles["animation"])
     return f"{style['prefix']} {image_prompt}{style['suffix']}"
@@ -205,24 +203,35 @@ def _gen_comfyui(prompt: str, model_cfg: dict, out_path: Path) -> Path:
 _HANDLERS = {"replicate": _gen_replicate, "google": _gen_google, "comfyui": _gen_comfyui}
 
 
-def generate_single(scene: dict, style_key: str, model_key: str, output_dir: Path) -> dict:
-    """단일 장면 이미지 생성"""
+def generate_single(scene: dict, style_key: str, model_key: str, output_dir: Path, force: bool = False) -> dict:
+    """단일 장면 이미지 생성
+
+    Args:
+        force: True면 기존 파일 덮어쓰기
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
 
     model_cfg = config.IMAGE_MODELS.get(model_key, config.IMAGE_MODELS[config.IMAGE_MODEL_DEFAULT])
     prompt = build_prompt(scene["image_prompt"], style_key, provider=model_cfg["provider"])
     out_path = output_dir / f"scene_{scene['id']:03d}.png"
 
-    # 이미 존재하면 건너뜀
-    if out_path.exists():
+    # 로깅
+    logger.info(f"이미지 생성 - Scene {scene['id']}, Style: {style_key}, Model: {model_key}, Force: {force}")
+    logger.info(f"프롬프트: {prompt[:150]}...")
+
+    # force=False이고 파일이 존재하면 건너뜀
+    if not force and out_path.exists():
+        logger.info(f"파일 이미 존재, 건너뜀: {out_path}")
         return {"scene_id": scene["id"], "image_path": str(out_path), "prompt": prompt, "status": "success"}
 
     try:
         handler = _HANDLERS[model_cfg["provider"]]
         handler(prompt, model_cfg, out_path)
         time.sleep(0.3)
+        logger.info(f"이미지 생성 완료: {out_path}")
         return {"scene_id": scene["id"], "image_path": str(out_path), "prompt": prompt, "status": "success"}
     except Exception as e:
+        logger.error(f"이미지 생성 실패: {e}")
         return {"scene_id": scene["id"], "image_path": None, "prompt": prompt, "status": f"failed: {e}"}
 
 

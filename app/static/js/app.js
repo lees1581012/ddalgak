@@ -420,6 +420,11 @@ async function regenerateCurrentImage() {
 
     scene.image_prompt = $('imgPromptEdit').value;
 
+    const styleValue = $('styleSelect').value;
+    const modelValue = $('modelSelect').value;
+
+    console.log('재생성 요청 - scene:', scene.id, 'style:', styleValue, 'model:', modelValue);
+
     const btn = document.querySelector('#tab-images .control-panel .btn-primary');
     if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 생성 중...'; }
 
@@ -430,33 +435,79 @@ async function regenerateCurrentImage() {
             body: JSON.stringify({
                 project_id: STATE.projectId,
                 scene,
-                style: $('styleSelect').value,
-                image_model: $('modelSelect').value,
+                style: styleValue,
+                image_model: modelValue,
             }),
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error);
 
+        console.log('재생성 결과:', data.result);
+
         const idx = STATE.imageResults.findIndex(r => r.scene_id === scene.id);
         if (idx >= 0) STATE.imageResults[idx] = data.result;
         else STATE.imageResults.push(data.result);
 
-        selectImageScene(STATE.selectedSceneIdx);
+        // 캐시 방지를 위해 타임스탬프 추가하여 미리보기 갱신
+        const area = $('imagePreviewArea');
+        if (area && STATE.projectId) {
+            const timestamp = Date.now();
+            area.innerHTML = `<img src="/api/project/${STATE.projectId}/image/${scene.id}?t=${timestamp}" alt="장면 ${scene.id}">`;
+        }
+
+        // 사이드바 갱신
+        renderSidebar('imgSidebarList', 'imgSceneCount', {
+            showImageStatus: true,
+            onSelect: (s, i) => selectImageScene(i),
+        });
+
         updateUngenCount();
 
     } catch (e) {
         alert('재생성 실패: ' + e.message);
+        console.error('재생성 에러:', e);
     } finally {
         if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 이미지 생성'; }
     }
 }
 
-function deleteCurrentImage() {
+async function deleteCurrentImage() {
     const scene = getSelectedScene();
     if (!scene) return;
-    STATE.imageResults = STATE.imageResults.filter(r => r.scene_id !== scene.id);
-    selectImageScene(STATE.selectedSceneIdx);
-    updateUngenCount();
+
+    try {
+        const res = await fetch('/api/step2/delete', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                project_id: STATE.projectId,
+                scene_id: scene.id
+            })
+        });
+        if (!res.ok) throw new Error('삭제 실패');
+
+        // 프론트엔드 상태에서도 제거
+        STATE.imageResults = STATE.imageResults.filter(r => r.scene_id !== scene.id);
+
+        // 즉시 미리보기 비우기 (캐시 문제 방지)
+        const area = $('imagePreviewArea');
+        if (area) {
+            area.innerHTML = `<div class="empty-state">
+                <i class="fa-regular fa-image" style="font-size:3rem;opacity:0.3"></i>
+                <p>미리보기 이미지가 없습니다</p>
+            </div>`;
+        }
+
+        // 사이드바 갱신
+        renderSidebar('imgSidebarList', 'imgSceneCount', {
+            showImageStatus: true,
+            onSelect: (s, i) => selectImageScene(i),
+        });
+
+        updateUngenCount();
+    } catch (e) {
+        alert('삭제 실패: ' + e.message);
+    }
 }
 
 function deleteAllImages() {
@@ -472,6 +523,28 @@ function selectAllImages() {
 $('modelSelect')?.addEventListener('change', () => {
     updateImageCost();
     updateUngenCount();
+});
+
+// 스타일 카드 선택
+function selectStyle(styleKey) {
+    const styleSelect = $('styleSelect');
+    if (styleSelect) styleSelect.value = styleKey;
+
+    document.querySelectorAll('.style-card').forEach(card => {
+        card.classList.remove('selected');
+        if (card.dataset.style === styleKey) {
+            card.classList.add('selected');
+        }
+    });
+}
+
+// 스타일 카드 이벤트 리스너 등록
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.style-card').forEach(card => {
+        card.addEventListener('click', () => {
+            selectStyle(card.dataset.style);
+        });
+    });
 });
 
 // ═══════════════════════════════════════
@@ -773,9 +846,10 @@ function generateVideos() {
         $('videoGenStatus').style.display = 'none';
         alert(`비디오 생성 완료: ${d.success}개 성공, ${d.failed}개 실패`);
 
+        // 실패해도 합성 탭은 활성화 (이미지 슬라이드쇼로 합성 가능)
+        enableTab('compose');
         if (d.failed === 0) {
             markTabDone('video');
-            enableTab('compose');
         }
         updateVideoProgress();
     });

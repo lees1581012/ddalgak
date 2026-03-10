@@ -1,32 +1,32 @@
 {
   "animation": {
-    "name": "3D 애니메이션 (기본)",
-    "prefix": "3D rendered, cute adorable animal characters, soft studio lighting, vibrant colors, rounded shapes, clean composition,",
+    "name": "3D 애니메이션",
+    "prefix": "3D rendered, soft studio lighting, vibrant colors, rounded shapes, clean composition,",
     "suffix": ", high quality 3D render, 4k, smooth, appealing, bokeh background"
   },
   "realistic": {
     "name": "실사 3D",
-    "prefix": "photorealistic 3D render, hyper-detailed, natural lighting, cute stylized animal characters,",
+    "prefix": "photorealistic 3D render, hyper-detailed, natural lighting,",
     "suffix": ", 8k, ultra detailed, sharp focus, cinematic lighting"
   },
   "retro_manhwa": {
     "name": "레트로 만화",
-    "prefix": "retro Korean manhwa style, vintage comic book, halftone dots, bold outlines, cute animal characters,",
+    "prefix": "retro Korean manhwa style, vintage comic book, halftone dots, bold outlines,",
     "suffix": ", nostalgic, colorful, hand-drawn feel"
   },
   "watercolor": {
     "name": "수채화",
-    "prefix": "watercolor painting style, soft colors, artistic, cute animal characters, flowing brushstrokes,",
+    "prefix": "watercolor painting style, soft colors, artistic, flowing brushstrokes,",
     "suffix": ", delicate, beautiful, artistic illustration"
   },
   "documentary": {
     "name": "인포그래픽",
-    "prefix": "3D rendered infographic, clean modern design, cute animal character presenter, data visualization,",
+    "prefix": "3D rendered infographic, clean modern design, data visualization,",
     "suffix": ", informative, modern design, clear layout, 4k"
   },
   "cute_3d": {
-    "name": "귀여운 3D (프리미엄)",
-    "prefix": "ultra cute 3D rendered character, Pixar Dreamworks style, adorable round animal characters, soft warm lighting, pastel and vibrant colors,",
+    "name": "귀여운 3D",
+    "prefix": "ultra cute 3D rendered, Pixar Dreamworks style, soft warm lighting, pastel and vibrant colors,",
     "suffix": ", premium 3D render, smooth subsurface scattering, appealing, studio quality"
   }
 }

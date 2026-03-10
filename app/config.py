@@ -25,7 +25,7 @@ SCRIPT_TEMPERATURE = 0.8
 
 # ?? ?대?吏 紐⑤뜽 ??
 IMAGE_STYLE_DEFAULT = "animation"
-IMAGE_MODEL_DEFAULT = "flux-schnell"
+IMAGE_MODEL_DEFAULT = "z-image"
 
 IMAGE_MODELS = {
     "z-image": {

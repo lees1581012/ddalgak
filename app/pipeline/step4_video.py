@@ -234,13 +234,28 @@ def generate_video_google(
 
 def _comfy_post(endpoint: str, data: dict) -> dict:
     payload = json.dumps(data).encode("utf-8")
+    url = f"{COMFYUI_URL}{endpoint}"
+    logger.info(f"_comfy_post: URL={url}")
+    logger.info(f"_comfy_post: payload length={len(payload)}")
+
     req = urllib.request.Request(
-        f"{COMFYUI_URL}{endpoint}",
+        url,
         data=payload,
         headers={"Content-Type": "application/json"},
     )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return json.loads(resp.read())
+
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            response_data = resp.read()
+            logger.info(f"_comfy_post: response length={len(response_data)}, status={resp.status}")
+            return json.loads(response_data)
+    except urllib.error.HTTPError as e:
+        logger.error(f"_comfy_post: HTTPError {e.code} - {e.reason}")
+        logger.error(f"_comfy_post: response body: {e.read().decode() if e.readable() else 'N/A'}")
+        raise
+    except Exception as e:
+        logger.error(f"_comfy_post: Exception → {e}")
+        raise
 
 
 def _comfy_get(endpoint: str) -> dict:
@@ -249,33 +264,56 @@ def _comfy_get(endpoint: str) -> dict:
 
 
 def _upload_image_to_comfy(image_path: Path) -> str:
+    """ComfyUI로 이미지 업로드 (httpx 사용)"""
+    import httpx
     import mimetypes
+
     filename = image_path.name
     mime = mimetypes.guess_type(str(image_path))[0] or "image/png"
-    boundary = uuid.uuid4().hex
 
-    body = bytearray()
-    body.extend(f"--{boundary}\r\n".encode())
-    body.extend(f'Content-Disposition: form-data; name="image"; filename="{filename}"\r\n'.encode())
-    body.extend(f"Content-Type: {mime}\r\n\r\n".encode())
-    body.extend(image_path.read_bytes())
-    body.extend(f"\r\n--{boundary}--\r\n".encode())
-
-    req = urllib.request.Request(
-        f"{COMFYUI_URL}/upload/image",
-        data=bytes(body),
-        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
-        method="POST",
-    )
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        result = json.loads(resp.read())
-    return result.get("name", filename)
+    try:
+        with open(image_path, "rb") as f:
+            files = {"image": (filename, f, mime)}
+            response = httpx.post(
+                f"{COMFYUI_URL}/upload/image",
+                files=files,
+                timeout=60.0
+            )
+            response.raise_for_status()
+            result = response.json()
+            uploaded_name = result.get("name", filename)
+            logger.info(f"이미지 업로드 성공: {filename} → {uploaded_name}")
+            return uploaded_name
+    except Exception as e:
+        logger.error(f"이미지 업로드 실패: {e}")
+        # fallback: ComfyUI input 폴더에 직접 복사
+        try:
+            comfy_input = Path("C:/Users/A/Documents/ComfyUI/input")
+            if comfy_input.exists():
+                dest = comfy_input / filename
+                import shutil
+                shutil.copy2(image_path, dest)
+                logger.info(f"fallback: 파일 직접 복사 → {dest}")
+                return filename
+            else:
+                raise RuntimeError(f"ComfyUI input 폴더를 찾을 수 없음: {comfy_input}")
+        except Exception as e2:
+            logger.error(f"fallback도 실패: {e2}")
+            raise RuntimeError(f"이미지 업로드 실패: {e}, fallback 실패: {e2}")
 
 
 
 def _queue_prompt(workflow: dict) -> str:
-    result = _comfy_post("/prompt", workflow)
-    return result["prompt_id"]
+    logger.info(f"_queue_prompt: 워크플로우 전송 시도")
+    logger.info(f"_queue_prompt: COMFYUI_URL={COMFYUI_URL}")
+    try:
+        result = _comfy_post("/prompt", workflow)
+        prompt_id = result.get("prompt_id")
+        logger.info(f"_queue_prompt: 성공, prompt_id={prompt_id}")
+        return prompt_id
+    except Exception as e:
+        logger.error(f"_queue_prompt: 실패 → {e}")
+        raise
 
 
 def _wait_for_completion(prompt_id: str, timeout: int = 600) -> dict:
@@ -576,22 +614,29 @@ def generate_video_comfyui(image_path: Path, prompt: str, output_dir: Path,
 
     try:
         # 1) 이미지 업로드
+        logger.info(f"씬 {scene_id}: 이미지 업로드 시도 → {image_path}")
         image_filename = _upload_image_to_comfy(image_path)
         logger.info(f"씬 {scene_id}: 이미지 업로드 완료 → {image_filename}")
 
         # 2) 워크플로우 빌드
         import random
         seed = random.randint(1, 2**31)
+        logger.info(f"씬 {scene_id}: 워크플로우 빌드 (seed={seed})")
         workflow = _build_ltx2_workflow(image_filename, prompt, frame_count, seed)
+        logger.info(f"씬 {scene_id}: 워크플로우 빌드 완료")
 
         # 3) 큐 제출
+        logger.info(f"씬 {scene_id}: ComfyUI 큐 제출 시도")
         prompt_id = _queue_prompt(workflow)
-        logger.info(f"씬 {scene_id}: 큐 제출 → {prompt_id}")
+        logger.info(f"씬 {scene_id}: 큐 제출 완료 → {prompt_id}")
 
         # 4) 완료 대기
+        logger.info(f"씬 {scene_id}: 완료 대기 시작 (timeout=600s)")
         history = _wait_for_completion(prompt_id, timeout=600)
+        logger.info(f"씬 {scene_id}: 완료 대기 완료")
 
         # 5) 결과 다운로드
+        logger.info(f"씬 {scene_id}: 비디오 다운로드 시도")
         video_path = _download_output(prompt_id, history, output_dir, scene_id)
 
         if video_path and video_path.exists():
@@ -604,6 +649,7 @@ def generate_video_comfyui(image_path: Path, prompt: str, output_dir: Path,
                 "status": "success",
             }
         else:
+            logger.error(f"씬 {scene_id}: 출력 파일을 찾을 수 없음")
             return {
                 "scene_id": scene_id,
                 "video_path": None,
@@ -614,7 +660,9 @@ def generate_video_comfyui(image_path: Path, prompt: str, output_dir: Path,
             }
 
     except Exception as e:
+        import traceback
         logger.error(f"씬 {scene_id}: ComfyUI 에러 → {e}")
+        logger.error(f"씬 {scene_id}: Traceback:\n{traceback.format_exc()}")
         return {
             "scene_id": scene_id,
             "video_path": None,

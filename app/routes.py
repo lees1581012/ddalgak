@@ -8,13 +8,15 @@ from pathlib import Path
 from fastapi import APIRouter, Request, Body
 from fastapi import Form, File, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
+from fastapi.templating import Jinja2Templates
 from sse_starlette.sse import EventSourceResponse
 
-from app.main import templates
 from app import config
 from app.pipeline.utils import ensure_dir, generate_project_id, save_json, load_json
 from app.pipeline import step1_script, step2_images, step3_tts, step4_video, step5_compose, step6_metadata
+
 router = APIRouter()
+templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
 
 # ═══════════════════════════════════════════════════════════
@@ -169,7 +171,8 @@ async def step2_regenerate(body: dict = Body(...)):
     try:
         result = await asyncio.to_thread(
             step2_images.generate_single,
-            scene, style, image_model, project_dir / "images"
+            scene, style, image_model, project_dir / "images",
+            force=True  # 덮어쓰기
         )
 
         # image_results.json 업데이트
@@ -185,6 +188,30 @@ async def step2_regenerate(body: dict = Body(...)):
         return {"status": "ok", "result": result}
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@router.post("/api/step2/delete")
+async def step2_delete_image(body: dict = Body(...)):
+    """단일 이미지 삭제 (파일 + 메타데이터)"""
+    project_id = body["project_id"]
+    scene_id = body["scene_id"]
+    project_dir = config.OUTPUT_DIR / project_id
+
+    # 파일 삭제
+    img_path = project_dir / "images" / f"scene_{scene_id:03d}.png"
+    deleted_file = False
+    if img_path.exists():
+        img_path.unlink()
+        deleted_file = True
+
+    # image_results.json에서 제거
+    results_path = project_dir / "image_results.json"
+    if results_path.exists():
+        results = load_json(results_path)
+        results = [r for r in results if r.get("scene_id") != scene_id]
+        save_json(results, results_path)
+
+    return {"status": "ok", "deleted_file": deleted_file}
 
 
 # ═══════════════════════════════════════════════════════════

@@ -51,13 +51,25 @@ def compose_video(
     video_map = {}
     if vr_path.exists():
         vr_data = json.load(open(vr_path, encoding="utf-8"))
+        console.print(f"  video_results.json 항목: {len(vr_data)}개")
         for r in vr_data:
+            console.print(f"    - 씬 {r.get('scene_id')}: status={r.get('status')}, path={r.get('video_path')}")
             if r.get("status") == "success" and r.get("video_path"):
                 vp = Path(r["video_path"])
+                # 경로가 상대경로면 절대경로로 변환
+                if not vp.is_absolute():
+                    vp = project_dir / "videos" / vp.name
+                console.print(f"      확인된 경로: {vp}, 존재?: {vp.exists()}")
                 if vp.exists():
                     video_map[r["scene_id"]] = vp
+                else:
+                    # videos 폴더에서 직접 찾기
+                    alt_path = project_dir / "videos" / f"scene_{r['scene_id']:03d}.mp4"
+                    if alt_path.exists():
+                        console.print(f"      대체 경로 찾음: {alt_path}")
+                        video_map[r["scene_id"]] = alt_path
 
-    console.print(f"  비디오 있는 씬: {list(video_map.keys())} / 전체 {len(scenes)}씬")
+    console.print(f"  [bold green]비디오 있는 씬: {list(video_map.keys())} / 전체 {len(scenes)}씬[/bold green]")
 
     # 1) 각 씬 오디오 duration
     durations = []
@@ -165,14 +177,16 @@ def compose_video(
                     str(clip_path)
                 ]
 
+        src_type = "video" if sid in video_map else "image"
+        console.print(f"  씬 {sid}: {src_type} → {clip_path.name} ({dur:.1f}s)")
+
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
         if result.returncode == 0:
             clip_paths.append(clip_path)
-            src_type = "video" if sid in video_map else "image"
-            console.print(f"  씬 {sid}: {src_type} 클립 생성 ({dur:.1f}s)")
+            console.print(f"    [green]✓ 클립 생성 완료[/green]")
         else:
-            console.print(f"  [red]씬 {sid}: 클립 생성 실패[/red]")
-            console.print(f"  [dim]{result.stderr[-300:]}[/dim]")
+            console.print(f"    [red]✗ 클립 생성 실패[/red]")
+            console.print(f"    [dim]{result.stderr[-300:]}[/dim]")
 
     # 5) 클립 concat
     clip_list_file = project_dir / "clip_concat.txt"

@@ -158,7 +158,7 @@
                             <label>이미지 모델</label>
                             <select id="modelSelect">
                                 {%- for key, m in image_models.items() %}
-                                <option value="{{ key }}" {{ 'selected' if key == 'flux-schnell' else '' }}>{{ m.name }} — ${{ "%.3f"|format(m.cost) }}</option>
+                                <option value="{{ key }}" {{ 'selected' if key == 'z-image' else '' }}>{{ m.name }} — ${{ "%.3f"|format(m.cost) }}</option>
                                 {%- endfor %}
                             </select>
                         </div>
@@ -178,15 +178,34 @@
                             <button class="btn-primary btn-full" onclick="regenerateCurrentImage()" style="margin-top:8px"><i class="fa-solid fa-wand-magic-sparkles"></i> 이미지 생성</button>
                         </div>
                         <div class="control-group">
-                            <label>이미지 스타일</label>
-                            <select id="styleSelect">
-                                <option value="animation" selected>애니메이션</option>
-                                <option value="realistic">실사</option>
-                                <option value="retro_manhwa">레트로 만화</option>
-                                <option value="watercolor">수채화</option>
-                                <option value="documentary">다큐멘터리</option>
-                                <option value="cute_3d">귀여운 3D</option>
-                            </select>
+                            <label>레퍼런스 스타일 (클릭해서 선택)</label>
+                            <input type="hidden" id="styleSelect" value="animation">
+                            <div class="style-grid" id="styleGrid">
+                                <div class="style-card selected" data-style="animation" onclick="selectStyle('animation')">
+                                    <img src="https://images.unsplash.com/photo-1614730341194-75c607400070?w=300&h=170&fit=crop" alt="3D 애니메이션" class="style-img">
+                                    <span class="style-name">3D 애니메이션</span>
+                                </div>
+                                <div class="style-card" data-style="realistic" onclick="selectStyle('realistic')">
+                                    <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=300&h=170&fit=crop" alt="실사 3D" class="style-img">
+                                    <span class="style-name">실사 3D</span>
+                                </div>
+                                <div class="style-card" data-style="retro_manhwa" onclick="selectStyle('retro_manhwa')">
+                                    <img src="https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=300&h=170&fit=crop" alt="레트로 만화" class="style-img">
+                                    <span class="style-name">레트로 만화</span>
+                                </div>
+                                <div class="style-card" data-style="watercolor" onclick="selectStyle('watercolor')">
+                                    <img src="https://images.unsplash.com/photo-1579762715118-a6f1d4b934f1?w=300&h=170&fit=crop" alt="수채화" class="style-img">
+                                    <span class="style-name">수채화</span>
+                                </div>
+                                <div class="style-card" data-style="documentary" onclick="selectStyle('documentary')">
+                                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=170&fit=crop" alt="인포그래픽" class="style-img">
+                                    <span class="style-name">인포그래픽</span>
+                                </div>
+                                <div class="style-card" data-style="cute_3d" onclick="selectStyle('cute_3d')">
+                                    <img src="https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?w=300&h=170&fit=crop" alt="귀여운 3D" class="style-img">
+                                    <span class="style-name">귀여운 3D</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
