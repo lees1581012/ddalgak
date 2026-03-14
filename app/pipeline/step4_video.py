@@ -387,10 +387,6 @@ def _build_ltx2_workflow(
             "inputs": {"sigmas": "0.909375, 0.725, 0.421875, 0.0"},
             "class_type": "ManualSigmas"
         },
-        "92:76": {
-            "inputs": {"model_name": "ltx-2-spatial-upscaler-x2-1.0.safetensors"},
-            "class_type": "LatentUpscaleModelLoader"
-        },
         "92:81": {
             "inputs": {
                 "positive": ["92:22", 0],
@@ -402,7 +398,7 @@ def _build_ltx2_workflow(
         "92:82": {
             "inputs": {
                 "cfg": 1,
-                "model": ["92:68", 0],
+                "model": ["92:1", 0],
                 "positive": ["92:81", 0],
                 "negative": ["92:81", 1]
             },
@@ -510,14 +506,6 @@ def _build_ltx2_workflow(
             },
             "class_type": "LTXVConcatAVLatent"
         },
-        "92:84": {
-            "inputs": {
-                "samples": ["92:81", 2],
-                "upscale_model": ["92:76", 0],
-                "vae": ["92:1", 2]
-            },
-            "class_type": "LTXVLatentUpsampler"
-        },
         "92:90": {
             "inputs": {
                 "upscale_method": "lanczos", "scale_by": 0.5,
@@ -572,7 +560,7 @@ def _build_ltx2_workflow(
                 "strength": 1, "bypass": False,
                 "vae": ["92:1", 2],
                 "image": ["92:99", 0],
-                "latent": ["92:84", 0]
+                "latent": ["92:43", 0]
             },
             "class_type": "LTXVImgToVideoInplace"
         },
@@ -584,14 +572,6 @@ def _build_ltx2_workflow(
                 "negative": ["92:22", 1]
             },
             "class_type": "CFGGuider"
-        },
-        "92:68": {
-            "inputs": {
-                "lora_name": "ltx-2-19b-distilled-lora-384.safetensors",
-                "strength_model": 1,
-                "model": ["92:1", 0]
-            },
-            "class_type": "LoraLoaderModelOnly"
         },
         "92:106": {
             "inputs": {
